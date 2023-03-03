@@ -2,7 +2,9 @@
     "parser": "@typescript-eslint/parser",
     "extends": [
         "plugin:@typescript-eslint/recommended",
-        "prettier"
+        "prettier",
+        "plugin:mocha/recommended",
+        "plugin:security/recommended"
     ],
     "plugins": ["prettier"],
     "parserOptions": {
@@ -10,6 +12,7 @@
         "sourceType": "module"
     },
     "rules": {
-        "prettier/prettier": "error"
+        "prettier/prettier": "error",
+        "no-unexpected-multiline": "error"
     }
 }
