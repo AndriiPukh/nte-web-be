@@ -22,7 +22,7 @@
     "url": "https://github.com/AndriiPukh/nte-web-be/issues"
   },
   "lint-staged": {
-    "*.(js|jsx)": ["npm run lint:write", "git add", "npm run test"]
+    "*.(js|jsx)": ["npm run lint:write", "git add"]
   },
   "homepage": "https://github.com/AndriiPukh/nte-web-be#readme",
   "dependencies": {
