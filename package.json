@@ -1,0 +1,19 @@
+{
+  "name": "nte-web-be",
+  "version": "1.0.0",
+  "description": "Second try for NTE",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/AndriiPukh/nte-web-be.git"
+  },
+  "author": "Andrii Pukh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndriiPukh/nte-web-be/issues"
+  },
+  "homepage": "https://github.com/AndriiPukh/nte-web-be#readme"
+}
