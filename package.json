@@ -6,7 +6,6 @@
   "scripts": {
     "serve": "nodemon src/server.js",
     "test": "jest --passWithNoTests",
-    "prepare": "husky install",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
     "prettier": "prettier --write src/**/*.js"
@@ -26,7 +25,11 @@
     }
   },
   "lint-staged": {
-    "*.(js|jsx)": ["npm run lint:write", "git add", "npm run test"]
+    "*.(js|jsx)": [
+      "npm run lint:write",
+      "git add",
+      "npm run test"
+    ]
   },
   "homepage": "https://github.com/AndriiPukh/nte-web-be#readme",
   "dependencies": {
