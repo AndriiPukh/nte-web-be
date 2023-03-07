@@ -1,13 +1,17 @@
 const http = require('http');
 const app = require('./app');
 const { port } = require('./app/configs/server');
-const { mongoConnect } = require('./app/services/mongo');
+const { mongoose } = require('./app/services/mongo');
+const logger = require('./app/utils/logger');
+const { redisConnect } = require('./app/services/redis');
 
 async function startServer() {
   const server = http.createServer(app);
-  await mongoConnect();
+  await redisConnect();
   server.listen(port, () => {
-    console.log(`Listening on port ${port}...`);
+    mongoose.connection
+      .on('open', () => logger.info('🚀  MongoDB: Connection Succeeded'))
+      .on('error', (err) => logger.error(err));
   });
 }
 
