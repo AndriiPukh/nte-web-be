@@ -1,27 +1,25 @@
 const passport = require('passport');
-const JwtStrategy = require('passport-jwt').Strategy;
-const { accessPrivateToken } = require('../configs/auth');
+const { Strategy, ExtractJwt } = require('passport-jwt');
+const { accessSecret } = require('../configs');
 const { findUserByName } = require('../../auth/auth.model');
 
-function cookiesExtractor(req) {
-  return req && req.cookies.jwt ? req.cookies.jwt : null;
-}
 passport.use(
-  new JwtStrategy({
-    jwtFromRequest: cookiesExtractor,
-    secretOrKey: accessPrivateToken,
-  }),
-  async (jwtPayload, done) => {
-    try {
-      if (Date.now() > jwtPayload.expires) return done('Token expired');
-      const user = await findUserByName(jwtPayload.username);
-      return done(null, user);
-    } catch (err) {
-      return done(err);
+  new Strategy(
+    {
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      secretOrKey: accessSecret,
+    },
+    async (payload, done) => {
+      try {
+        if (Date.now() > payload.expires) return done('Token expired');
+        const { userName } = JSON.parse(payload.user);
+        const user = await findUserByName(userName);
+        return done(null, user);
+      } catch (err) {
+        return done(err, false);
+      }
     }
-  }
+  )
 );
-
-exports.verifyUser = passport.authenticate('jwt', { session: false }, () => {});
 
 module.exports = passport;

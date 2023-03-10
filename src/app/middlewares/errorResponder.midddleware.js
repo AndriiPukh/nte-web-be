@@ -1,10 +1,12 @@
 const logger = require('../utils/logger');
 
-function errorResponder(err, req, res, next) {
+function errorResponder(err, req, res, _) {
   logger.error(err);
-  const status = err.status || 400;
-  res.status(status).send(err.message);
-  next();
+  if (err.isCustomError) {
+    res.status(err.statusCode).send({ message: err.message });
+  } else {
+    res.status(500).send(err);
+  }
 }
 
 module.exports = errorResponder;

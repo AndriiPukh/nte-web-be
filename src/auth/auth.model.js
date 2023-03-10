@@ -2,17 +2,22 @@ const bcryptjs = require('bcryptjs');
 const UserDB = require('./user.mongo');
 
 async function findUserByName(userName) {
-  return UserDB.findOne({ userName }, { __v: 0 });
+  return UserDB.findOne({ userName }, { __v: 0, password: 0 });
+}
+async function isUserExist(userName, email) {
+  const user = await UserDB.findOne(
+    {
+      $or: [{ userName }, { email }],
+    },
+    { __v: 0 }
+  );
+  return user;
 }
 async function createNewUser(userName, password, email) {
-  const alreadyExist = await findUserByName(userName);
-  if (alreadyExist) {
-    throw new Error('Username already exist!');
-  }
-  // const salt = await bcryptjs.genSalt(10);
   const passwordHash = await bcryptjs.hash(password, 10);
-  const user = new UserDB({ userName, password: passwordHash, email });
-  await user.save();
+  const newUser = new UserDB({ userName, password: passwordHash, email });
+  await newUser.save();
+  return findUserByName(userName);
 }
 
 async function userFindByNameAndMatchingPassword(userName, password) {
@@ -22,7 +27,6 @@ async function userFindByNameAndMatchingPassword(userName, password) {
     throw new Error('User does not exist');
   }
   const isMatched = await bcryptjs.compare(password, user.password);
-  console.log(isMatched);
   if (!isMatched) {
     throw new Error('wrong username/password or session expired');
   }
@@ -33,4 +37,5 @@ module.exports = {
   createNewUser,
   findUserByName,
   userFindByNameAndMatchingPassword,
+  isUserExist,
 };

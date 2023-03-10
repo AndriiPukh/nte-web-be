@@ -1,17 +1,41 @@
 const { validationResult } = require('express-validator');
-const jwt = require('jsonwebtoken');
+const FormattedError = require('../app/utils/errorFormatter');
+const { authErrorFormatter, getToken } = require('./auth.utils');
+const { refreshTokenTime } = require('../app/configs');
 const {
   createNewUser,
   userFindByNameAndMatchingPassword,
+  isUserExist,
 } = require('./auth.model');
+const passport = require('../app/services/passport');
+const { USER_EXISTS_ALREADY } = require('./auth.constant');
 
 async function httpRegister(req, res, next) {
-  const errorsAfterValidation = validationResult(req);
-  console.log(errorsAfterValidation);
+  const errorsResult = validationResult(req).formatWith(({ msg }) => msg);
   try {
+    if (!errorsResult.isEmpty()) {
+      throw new FormattedError(authErrorFormatter(errorsResult.array()[0]));
+    }
     const { userName, password, email } = req.body;
-    await createNewUser(userName, password, email);
-    res.status(200).json({ userName, message: 'Sign up successfully!' });
+    const isExist = await isUserExist(userName, email);
+    if (isExist !== null) {
+      throw new FormattedError(authErrorFormatter(USER_EXISTS_ALREADY));
+    }
+    const user = await createNewUser(userName, password, email);
+    req.login(user, { session: false }, (err) => {
+      if (err) throw new Error(err);
+      const accessToken = getToken(user);
+      const refreshToken = getToken(user, 'refresh');
+      res
+        .cookie('refresh_token', refreshToken, {
+          httpOnly: false,
+          secure: false,
+          sameSite: 'None',
+          maxAge: refreshTokenTime,
+        })
+        .status(200)
+        .json({ accessToken });
+    });
   } catch (err) {
     next(err);
   }

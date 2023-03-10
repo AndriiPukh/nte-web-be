@@ -1,18 +1,33 @@
 const { check } = require('express-validator');
+const jwt = require('jsonwebtoken');
 const {
   EMAIL_IS_EMPTY,
   USER_NAME_IS_EMPTY,
   EMAIL_IS_IN_WRONG_FORMAT,
   PASSWORD_IS_EMPTY,
   PASSWORD_LENGTH_MUST_BE_MORE_THAN_8,
+  USER_NAME_LENGTH,
+  SOME_THING_WENT_WRONG,
 } = require('./auth.constant');
+const authErrors = require('./authErrors');
+const {
+  accessPrivateToken,
+  accessTokenTime,
+  refreshTokenTime,
+  refreshSecret,
+} = require('../app/configs');
+const { accessSecret } = require('../app/configs/auth');
 
+function authErrorFormatter(errorName) {
+  return authErrors[errorName] || authErrors[SOME_THING_WENT_WRONG];
+}
 const registerValidation = [
   check('userName')
     .exists()
     .withMessage(USER_NAME_IS_EMPTY)
     .bail()
     .isLength({ min: 3, max: 18 })
+    .withMessage(USER_NAME_LENGTH)
     .bail(),
   check('email')
     .exists()
@@ -30,6 +45,16 @@ const registerValidation = [
     .bail(),
 ];
 
+function getToken(user, type = 'accessToken') {
+  const secret = type === 'accessToken' ? accessSecret : refreshSecret;
+  const time = type === 'accessToken' ? accessTokenTime : refreshTokenTime;
+  return jwt.sign({ user: JSON.stringify(user) }, secret, {
+    expiresIn: time,
+  });
+}
+
 module.exports = {
   registerValidation,
+  authErrorFormatter,
+  getToken,
 };
