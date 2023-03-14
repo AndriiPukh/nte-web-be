@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 
-const HALF_HOUR = 1000 * 60 * 30;
-const TWENTY_FOUR_HOURS = 1000 * 60 * 60 * 24;
+const HALF_HOUR = '30m';
+const TWENTY_FOUR_HOURS = '24h';
 
 dotenv.config();
 module.exports = {

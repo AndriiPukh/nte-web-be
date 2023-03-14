@@ -11,12 +11,11 @@ const {
 } = require('./auth.constant');
 const authErrors = require('./authErrors');
 const {
-  accessPrivateToken,
+  accessSecret,
   accessTokenTime,
   refreshTokenTime,
   refreshSecret,
 } = require('../app/configs');
-const { accessSecret } = require('../app/configs/auth');
 
 function authErrorFormatter(errorName) {
   return authErrors[errorName] || authErrors[SOME_THING_WENT_WRONG];
@@ -45,9 +44,9 @@ const registerValidation = [
     .bail(),
 ];
 
-function getToken(user, type = 'accessToken') {
-  const secret = type === 'accessToken' ? accessSecret : refreshSecret;
-  const time = type === 'accessToken' ? accessTokenTime : refreshTokenTime;
+function getToken(user, isAccess = true) {
+  const secret = isAccess ? accessSecret : refreshSecret;
+  const time = isAccess ? accessTokenTime : refreshTokenTime;
   return jwt.sign({ user: JSON.stringify(user) }, secret, {
     expiresIn: time,
   });

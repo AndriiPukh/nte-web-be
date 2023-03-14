@@ -7,8 +7,10 @@ const {
   userFindByNameAndMatchingPassword,
   isUserExist,
 } = require('./auth.model');
-const passport = require('../app/services/passport');
-const { USER_EXISTS_ALREADY } = require('./auth.constant');
+const {
+  USER_EXISTS_ALREADY,
+  WRONG_USERNAME_OR_PASSWORD,
+} = require('./auth.constant');
 
 async function httpRegister(req, res, next) {
   const errorsResult = validationResult(req).formatWith(({ msg }) => msg);
@@ -22,20 +24,17 @@ async function httpRegister(req, res, next) {
       throw new FormattedError(authErrorFormatter(USER_EXISTS_ALREADY));
     }
     const user = await createNewUser(userName, password, email);
-    req.login(user, { session: false }, (err) => {
-      if (err) throw new Error(err);
-      const accessToken = getToken(user);
-      const refreshToken = getToken(user, 'refresh');
-      res
-        .cookie('refresh_token', refreshToken, {
-          httpOnly: false,
-          secure: false,
-          sameSite: 'None',
-          maxAge: refreshTokenTime,
-        })
-        .status(200)
-        .json({ accessToken });
-    });
+    const accessToken = getToken(user, true);
+    const refreshToken = getToken(user, false);
+    res
+      .cookie('refresh_token', refreshToken, {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'None',
+        maxAge: refreshTokenTime,
+      })
+      .status(200)
+      .json({ accessToken });
   } catch (err) {
     next(err);
   }
@@ -45,7 +44,19 @@ async function httpLogin(req, res, next) {
   try {
     const { userName, password } = req.body;
     const user = await userFindByNameAndMatchingPassword(userName, password);
-    res.status(200).json(user);
+    if (!user) {
+      throw new FormattedError(authErrorFormatter(WRONG_USERNAME_OR_PASSWORD));
+    } else {
+      res
+        .cookie('refresh_token', getToken(user, false), {
+          httpOnly: false,
+          secure: false,
+          sameSite: 'None',
+          maxAge: refreshTokenTime,
+        })
+        .status(200)
+        .json({ user, accessToken: getToken(user, true) });
+    }
   } catch (err) {
     next(err);
   }
