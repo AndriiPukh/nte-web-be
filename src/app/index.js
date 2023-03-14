@@ -46,7 +46,7 @@ app.use(cookieParser());
 if (env === 'production') app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 if (env === 'production') app.use(Sentry.Handlers.tracingHandler());
-app.use('/', routes);
+app.use('/api', routes);
 if (env === 'production') app.use(Sentry.Handlers.errorHandler());
 app.use(errorResponder);
 app.use(invalidpathHandler);

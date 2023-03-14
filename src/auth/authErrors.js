@@ -1,3 +1,5 @@
+const { REFRESH_TOKEN_IS_EXPIRED } = require('./auth.constant');
+
 module.exports = {
   USER_NAME_IS_EMPTY: {
     statusCode: 400,
@@ -34,5 +36,17 @@ module.exports = {
   USER_EXISTS_ALREADY: {
     statusCode: 422,
     message: 'User with this name or email already exist.',
+  },
+  REFRESH_TOKEN_IS_REQUIRED: {
+    statusCode: 403,
+    message: 'Refresh Token is required!',
+  },
+  REFRESH_TOKEN_IS_EXPIRED: {
+    statusCode: 401,
+    message: 'Refresh token was expired. Please make a new login request!',
+  },
+  REFRESH_TOKEN_IS_NOT_VERIFIED: {
+    statusCode: 401,
+    message: 'Unauthorized!',
   },
 };

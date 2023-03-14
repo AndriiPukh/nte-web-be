@@ -1,5 +1,8 @@
 const { check } = require('express-validator');
 const jwt = require('jsonwebtoken');
+
+const { TokenExpiredError } = jwt;
+
 const {
   EMAIL_IS_EMPTY,
   USER_NAME_IS_EMPTY,
@@ -47,8 +50,23 @@ const registerValidation = [
 function getToken(user, isAccess = true) {
   const secret = isAccess ? accessSecret : refreshSecret;
   const time = isAccess ? accessTokenTime : refreshTokenTime;
-  return jwt.sign({ user: JSON.stringify(user) }, secret, {
+  const tokenObj = {};
+  if (typeof user !== 'string') {
+    tokenObj.user = JSON.stringify(user);
+  } else {
+    tokenObj.email = user;
+  }
+  return jwt.sign(tokenObj, secret, {
     expiresIn: time,
+  });
+}
+
+function verifyRefresh(token) {
+  return jwt.verify(token, refreshSecret, {}, (err, decode) => {
+    if (err instanceof TokenExpiredError) {
+      return null;
+    }
+    return decode;
   });
 }
 
@@ -56,4 +74,5 @@ module.exports = {
   registerValidation,
   authErrorFormatter,
   getToken,
+  verifyRefresh,
 };
