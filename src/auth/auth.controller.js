@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const FormattedError = require('../app/utils/errorFormatter');
-const { authErrorFormatter, getToken } = require('./auth.utils');
+const { authErrorFormatter, getToken, verifyRefresh } = require('./auth.utils');
 const { refreshTokenTime } = require('../app/configs');
 const {
   createNewUser,
@@ -10,6 +10,9 @@ const {
 const {
   USER_EXISTS_ALREADY,
   WRONG_USERNAME_OR_PASSWORD,
+  REFRESH_TOKEN_IS_REQUIRED,
+  REFRESH_TOKEN_IS_NOT_VERIFIED,
+  REFRESH_TOKEN_IS_EXPIRED,
 } = require('./auth.constant');
 
 async function httpRegister(req, res, next) {
@@ -19,15 +22,17 @@ async function httpRegister(req, res, next) {
       throw new FormattedError(authErrorFormatter(errorsResult.array()[0]));
     }
     const { userName, password, email } = req.body;
+    console.log(email, 'Register');
     const isExist = await isUserExist(userName, email);
+    console.log(isExist);
     if (isExist !== null) {
       throw new FormattedError(authErrorFormatter(USER_EXISTS_ALREADY));
     }
     const user = await createNewUser(userName, password, email);
     const accessToken = getToken(user, true);
-    const refreshToken = getToken(user, false);
+    const refreshToken = getToken(user.email, false);
     res
-      .cookie('refresh_token', refreshToken, {
+      .cookie('refreshToken', refreshToken, {
         httpOnly: false,
         secure: false,
         sameSite: 'None',
@@ -48,7 +53,7 @@ async function httpLogin(req, res, next) {
       throw new FormattedError(authErrorFormatter(WRONG_USERNAME_OR_PASSWORD));
     } else {
       res
-        .cookie('refresh_token', getToken(user, false), {
+        .cookie('refreshToken', getToken(user.email, false), {
           httpOnly: false,
           secure: false,
           sameSite: 'None',
@@ -62,7 +67,38 @@ async function httpLogin(req, res, next) {
   }
 }
 
+async function httpGetRefresh(req, res, next) {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      throw FormattedError(authErrorFormatter(REFRESH_TOKEN_IS_REQUIRED));
+    }
+    const decoded = verifyRefresh(refreshToken);
+    if (!decoded) {
+      throw new FormattedError(authErrorFormatter(REFRESH_TOKEN_IS_EXPIRED));
+    }
+    const user = await isUserExist('', decoded.email);
+    if (!user) {
+      throw new FormattedError(
+        authErrorFormatter(REFRESH_TOKEN_IS_NOT_VERIFIED)
+      );
+    }
+    res
+      .cookie('refreshToken', getToken(user.email, false), {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'None',
+        maxAge: refreshTokenTime,
+      })
+      .status(200)
+      .send({ accessToken: getToken(user) });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   httpRegister,
   httpLogin,
+  httpGetRefresh,
 };
