@@ -4,14 +4,14 @@ const UserDB = require('./user.mongo');
 async function findUserByName(userName) {
   return UserDB.findOne({ userName }, { __v: 0, password: 0 });
 }
+
 async function isUserExist(userName, email) {
-  const user = await UserDB.findOne(
+  return UserDB.findOne(
     {
       $or: [{ userName }, { email }],
     },
-    { __v: 0 }
+    { __v: 0, password: 0 }
   );
-  return user;
 }
 async function createNewUser(userName, password, email) {
   const passwordHash = await bcryptjs.hash(password, 10);
@@ -21,14 +21,16 @@ async function createNewUser(userName, password, email) {
 }
 
 async function userFindByNameAndMatchingPassword(userName, password) {
-  const user = await findUserByName(userName);
-  if (!user) {
-    // Todo create error Handler
-    throw new Error('User does not exist');
+  const userData = await UserDB.findOne({ userName }, { __v: 0 });
+  if (!userData) {
+    return null;
   }
-  const isMatched = await bcryptjs.compare(password, user.password);
+  const {
+    _doc: { password: hashedPassword, ...user },
+  } = userData;
+  const isMatched = await bcryptjs.compare(password, hashedPassword);
   if (!isMatched) {
-    throw new Error('wrong username/password or session expired');
+    return null;
   }
   return user;
 }

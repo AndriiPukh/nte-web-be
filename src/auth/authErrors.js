@@ -27,7 +27,7 @@ module.exports = {
     statusCode: 400,
     message: 'Some thing went wrong.',
   },
-  WRONG_PASSWORD: {
+  WRONG_USERNAME_OR_PASSWORD: {
     statusCode: 422,
     message: 'The username or password you entered is incorrect.',
   },
@@ -35,9 +35,4 @@ module.exports = {
     statusCode: 422,
     message: 'User with this name or email already exist.',
   },
-  USER_DOES_NOT_EXIST: {
-    statusCode: 422,
-    message: 'The username or password you entered is incorrect.',
-  },
-  // TOKEN_IS_EMPTY: 'TOKEN_IS_EMPTY',
 };

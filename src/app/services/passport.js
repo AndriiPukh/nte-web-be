@@ -11,7 +11,7 @@ passport.use(
     },
     async (payload, done) => {
       try {
-        if (Date.now() > payload.expires) return done('Token expired');
+        if (Date.now() >= payload.exp * 1000) return done('Token expired');
         const { userName } = JSON.parse(payload.user);
         const user = await findUserByName(userName);
         return done(null, user);
