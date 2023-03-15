@@ -1,43 +1,41 @@
-const bcryptjs = require('bcryptjs');
 const UserDB = require('./user.mongo');
+const { DatabaseError } = require('./errors');
 
-async function findUserByName(userName) {
-  return UserDB.findOne({ userName }, { __v: 0, password: 0 });
-}
+async function findUserByAuth(userName, email = '') {
+  try {
+    const userDocument = await UserDB.findOne(
+      {
+        $or: [{ userName }, { email }],
+      },
+      { __v: 0 }
+    );
 
-async function isUserExist(userName, email) {
-  return UserDB.findOne(
-    {
-      $or: [{ userName }, { email }],
-    },
-    { __v: 0, password: 0 }
-  );
-}
-async function createNewUser(userName, password, email) {
-  const passwordHash = await bcryptjs.hash(password, 10);
-  const newUser = new UserDB({ userName, password: passwordHash, email });
-  await newUser.save();
-  return findUserByName(userName);
-}
+    if (!userDocument) {
+      return null;
+    }
 
-async function userFindByNameAndMatchingPassword(userName, password) {
-  const userData = await UserDB.findOne({ userName }, { __v: 0 });
-  if (!userData) {
-    return null;
+    const {
+      _doc: { password: hash, _v: _, ...userData },
+    } = userDocument;
+    return { password: hash, user: userData };
+  } catch (err) {
+    throw new DatabaseError('User', err);
   }
-  const {
-    _doc: { password: hashedPassword, ...user },
-  } = userData;
-  const isMatched = await bcryptjs.compare(password, hashedPassword);
-  if (!isMatched) {
-    return null;
+}
+async function addNewUser(userName, password, email) {
+  try {
+    const newUser = new UserDB({ userName, password, email });
+    // TODO check
+    const {
+      _doc: { password: hash, __v: _, ...user },
+    } = await newUser.save();
+    return user;
+  } catch (err) {
+    throw new DatabaseError('User', err);
   }
-  return user;
 }
 
 module.exports = {
-  createNewUser,
-  findUserByName,
-  userFindByNameAndMatchingPassword,
-  isUserExist,
+  findUserByAuth,
+  addNewUser,
 };

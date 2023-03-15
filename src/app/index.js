@@ -12,7 +12,7 @@ const morganMiddleware = require('./middlewares/morgan.middleware');
 const invalidpathHandler = require('./middlewares/invalidPathHandler');
 const routes = require('./routes');
 
-const errorResponder = require('./middlewares/errorResponder.midddleware');
+const errorHandler = require('./middlewares/ErrorHandler');
 const { env, sentryDSN, SESSION_OPTIONS } = require('./configs');
 
 const app = express();
@@ -48,6 +48,12 @@ if (env === 'production') app.use(Sentry.Handlers.requestHandler());
 if (env === 'production') app.use(Sentry.Handlers.tracingHandler());
 app.use('/api', routes);
 if (env === 'production') app.use(Sentry.Handlers.errorHandler());
-app.use(errorResponder);
+app.use(async (err, req, res, next) => {
+  if (!errorHandler.isTrustedError(err)) {
+    next(err);
+  }
+  await errorHandler.handleError(err, res);
+  next(err);
+});
 app.use(invalidpathHandler);
 module.exports = app;

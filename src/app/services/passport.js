@@ -1,7 +1,7 @@
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 const { accessSecret } = require('../configs');
-const { findUserByName } = require('../../auth/auth.model');
+const { findUserByAuth } = require('../../auth/auth.model');
 
 passport.use(
   new Strategy(
@@ -14,8 +14,10 @@ passport.use(
         if (Date.now() >= payload.exp * 1000)
           return done('Unauthorized! Access Token was expired!');
         const { userName } = JSON.parse(payload.user);
-        const user = await findUserByName(userName);
-        return done(null, user);
+        const userDocument = await findUserByAuth(userName);
+        if (!userDocument)
+          return done('Unauthorized! Access Token not verified!');
+        return done(null, userDocument);
       } catch (err) {
         return done(err, false);
       }

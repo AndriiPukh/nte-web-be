@@ -2,7 +2,7 @@ const { check } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
 const { TokenExpiredError } = jwt;
-
+const bcryptjs = require('bcryptjs');
 const {
   EMAIL_IS_EMPTY,
   USER_NAME_IS_EMPTY,
@@ -10,9 +10,7 @@ const {
   PASSWORD_IS_EMPTY,
   PASSWORD_LENGTH_MUST_BE_MORE_THAN_8,
   USER_NAME_LENGTH,
-  SOME_THING_WENT_WRONG,
-} = require('./auth.constant');
-const authErrors = require('./authErrors');
+} = require('./errors/validationError.constant');
 const {
   accessSecret,
   accessTokenTime,
@@ -20,31 +18,22 @@ const {
   refreshSecret,
 } = require('../app/configs');
 
-function authErrorFormatter(errorName) {
-  return authErrors[errorName] || authErrors[SOME_THING_WENT_WRONG];
-}
 const registerValidation = [
   check('userName')
     .exists()
     .withMessage(USER_NAME_IS_EMPTY)
-    .bail()
     .isLength({ min: 3, max: 18 })
-    .withMessage(USER_NAME_LENGTH)
-    .bail(),
+    .withMessage(USER_NAME_LENGTH),
   check('email')
     .exists()
     .withMessage(EMAIL_IS_EMPTY)
-    .bail()
     .isEmail()
-    .withMessage(EMAIL_IS_IN_WRONG_FORMAT)
-    .bail(),
+    .withMessage(EMAIL_IS_IN_WRONG_FORMAT),
   check('password')
     .exists()
     .withMessage(PASSWORD_IS_EMPTY)
-    .bail()
     .isLength({ min: 8 })
-    .withMessage(PASSWORD_LENGTH_MUST_BE_MORE_THAN_8)
-    .bail(),
+    .withMessage(PASSWORD_LENGTH_MUST_BE_MORE_THAN_8),
 ];
 
 function getToken(user, isAccess = true) {
@@ -70,9 +59,18 @@ function verifyRefresh(token) {
   });
 }
 
+async function passwordHash(password) {
+  return bcryptjs.hash(password, 10);
+}
+
+async function verifyPassword(password, hashedPassword) {
+  return bcryptjs.compare(password, hashedPassword);
+}
+
 module.exports = {
   registerValidation,
-  authErrorFormatter,
   getToken,
   verifyRefresh,
+  passwordHash,
+  verifyPassword,
 };

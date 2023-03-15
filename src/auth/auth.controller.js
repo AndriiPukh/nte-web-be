@@ -1,34 +1,34 @@
 const { validationResult } = require('express-validator');
-const FormattedError = require('../app/utils/errorFormatter');
-const { authErrorFormatter, getToken, verifyRefresh } = require('./auth.utils');
-const { refreshTokenTime } = require('../app/configs');
 const {
-  createNewUser,
-  userFindByNameAndMatchingPassword,
-  isUserExist,
-} = require('./auth.model');
+  getToken,
+  verifyRefresh,
+  passwordHash,
+  verifyPassword,
+} = require('./auth.utils');
+const { refreshTokenTime } = require('../app/configs');
+const { AuthValidationError, AuthError } = require('./errors');
+const { findUserByAuth, addNewUser } = require('./auth.model');
 const {
   USER_EXISTS_ALREADY,
   WRONG_USERNAME_OR_PASSWORD,
   REFRESH_TOKEN_IS_REQUIRED,
   REFRESH_TOKEN_IS_NOT_VERIFIED,
   REFRESH_TOKEN_IS_EXPIRED,
-} = require('./auth.constant');
+} = require('./errors/authErrors.constants');
 
-async function httpRegister(req, res, next) {
-  const errorsResult = validationResult(req).formatWith(({ msg }) => msg);
+async function httpCreateUser(req, res, next) {
+  const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
   try {
-    if (!errorsResult.isEmpty()) {
-      throw new FormattedError(authErrorFormatter(errorsResult.array()[0]));
+    if (!validationErrors.isEmpty()) {
+      throw new AuthValidationError(validationErrors.errors);
     }
     const { userName, password, email } = req.body;
-    console.log(email, 'Register');
-    const isExist = await isUserExist(userName, email);
-    console.log(isExist);
+    const isExist = await findUserByAuth(userName, email);
     if (isExist !== null) {
-      throw new FormattedError(authErrorFormatter(USER_EXISTS_ALREADY));
+      throw new AuthError(USER_EXISTS_ALREADY);
     }
-    const user = await createNewUser(userName, password, email);
+    const hashedPassword = await passwordHash(password);
+    const user = await addNewUser(userName, hashedPassword, email);
     const accessToken = getToken(user, true);
     const refreshToken = getToken(user.email, false);
     res
@@ -39,7 +39,7 @@ async function httpRegister(req, res, next) {
         maxAge: refreshTokenTime,
       })
       .status(200)
-      .json({ accessToken });
+      .json({ accessToken, user });
   } catch (err) {
     next(err);
   }
@@ -48,9 +48,14 @@ async function httpRegister(req, res, next) {
 async function httpLogin(req, res, next) {
   try {
     const { userName, password } = req.body;
-    const user = await userFindByNameAndMatchingPassword(userName, password);
-    if (!user) {
-      throw new FormattedError(authErrorFormatter(WRONG_USERNAME_OR_PASSWORD));
+    const userDocument = await findUserByAuth(userName);
+    if (userDocument === null) {
+      throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
+    }
+    const { password: hash, user } = userDocument;
+    const isVerified = await verifyPassword(password, hash);
+    if (!isVerified) {
+      throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
     } else {
       res
         .cookie('refreshToken', getToken(user.email, false), {
@@ -70,19 +75,18 @@ async function httpLogin(req, res, next) {
 async function httpGetRefresh(req, res, next) {
   try {
     const { refreshToken } = req.cookies;
-    if (!refreshToken) {
-      throw FormattedError(authErrorFormatter(REFRESH_TOKEN_IS_REQUIRED));
-    }
+    if (!refreshToken) throw new AuthError(REFRESH_TOKEN_IS_REQUIRED);
+
     const decoded = verifyRefresh(refreshToken);
     if (!decoded) {
-      throw new FormattedError(authErrorFormatter(REFRESH_TOKEN_IS_EXPIRED));
+      throw new AuthError(REFRESH_TOKEN_IS_EXPIRED);
     }
-    const user = await isUserExist('', decoded.email);
-    if (!user) {
-      throw new FormattedError(
-        authErrorFormatter(REFRESH_TOKEN_IS_NOT_VERIFIED)
-      );
+    const userDocument = await findUserByAuth('', decoded.email);
+
+    if (!userDocument) {
+      throw new AuthError(REFRESH_TOKEN_IS_NOT_VERIFIED);
     }
+    const { user } = userDocument;
     res
       .cookie('refreshToken', getToken(user.email, false), {
         httpOnly: false,
@@ -98,7 +102,7 @@ async function httpGetRefresh(req, res, next) {
 }
 
 module.exports = {
-  httpRegister,
+  httpCreateUser,
   httpLogin,
   httpGetRefresh,
 };

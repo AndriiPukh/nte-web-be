@@ -4,7 +4,7 @@ const { env } = require('../configs');
 
 const stream = {
   // Use the http severity
-  write: (message) => logger.http(message),
+  write: (message) => logger.info(message),
 };
 
 const skip = () => env !== 'development';
