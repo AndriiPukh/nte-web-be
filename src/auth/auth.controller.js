@@ -9,7 +9,11 @@ const {
   passwordHash,
   verifyPassword,
 } = require('./auth.utils');
-const { refreshTokenTime, SESSION_OPTIONS } = require('../app/configs');
+const {
+  refreshTokenTime,
+  SESSION_OPTIONS,
+  statusCode,
+} = require('../app/configs');
 const { AuthValidationError, AuthError } = require('./errors');
 const { findUserByAuth, addNewUser } = require('./auth.model');
 const {
@@ -42,7 +46,7 @@ async function httpCreateUser(req, res, next) {
         sameSite: 'None',
         maxAge: refreshTokenTime,
       })
-      .status(200)
+      .status(statusCode.CREATED)
       .json({ accessToken, user });
   } catch (err) {
     next(err);
@@ -81,7 +85,7 @@ async function httpLogin(req, res, next) {
           sameSite: 'None',
           maxAge: refreshTokenTime,
         })
-        .status(200)
+        .status(statusCode.OK)
         .json({ user, accessToken: getToken(user, true) });
     }
   } catch (err) {
@@ -91,7 +95,7 @@ async function httpLogin(req, res, next) {
       const timeOut = String(Math.round(err.msBeforeNext / 1000)) || 1;
       res.set('Retry-After', timeOut);
       res
-        .status(429)
+        .status(statusCode.TOO_MANY_REQUESTS)
         .send(`Too many login attempts. Retry after ${timeOut} seconds`);
     }
   }
@@ -119,7 +123,7 @@ async function httpGetRefresh(req, res, next) {
         sameSite: 'None',
         maxAge: refreshTokenTime,
       })
-      .status(200)
+      .status(statusCode.OK)
       .send({ accessToken: getToken(user) });
   } catch (err) {
     next(err);
@@ -133,7 +137,7 @@ async function httpGetLogout(req, res, next) {
     }
     res.clearCookie(SESSION_OPTIONS.name);
     res.clearCookie('refreshToken');
-    res.status(200).send('Success!');
+    res.status(statusCode.NO_CONTENT).end();
   });
 }
 

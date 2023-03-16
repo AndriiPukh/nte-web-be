@@ -3,6 +3,7 @@ const db = require('./database');
 const redis = require('./redis');
 const server = require('./server');
 const session = require('./session');
+const httpStatusCode = require('./httpStatusCode');
 
 module.exports = {
   ...server,
@@ -10,4 +11,5 @@ module.exports = {
   ...db,
   ...redis,
   ...session,
+  statusCode: httpStatusCode,
 };

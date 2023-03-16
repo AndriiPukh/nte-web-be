@@ -7,11 +7,20 @@ const redisClient = createClient({
   socket: { host: redisHost, port: redisPort },
   legacyMode: true,
 });
-redisClient.connect().catch((err) => logger.error(err));
+redisClient.on('ready', () => {
+  logger.info('Redis connection ready!');
+});
+redisClient.on('error', (err) => {
+  logger.fatal('Redis', err);
+});
+
+async function redisConnect() {
+  await redisClient.connect();
+}
 
 const redisStore = new RedisStore({
   client: redisClient,
   prefix: 'nte-app',
 });
 
-module.exports = { redisStore, redisClient };
+module.exports = { redisStore, redisClient, redisConnect };

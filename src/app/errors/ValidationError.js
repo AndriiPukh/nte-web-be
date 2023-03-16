@@ -1,9 +1,9 @@
 const APIError = require('./APIError');
-const { BAD_REQUEST } = require('./httpStatusCode');
+const { statusCode } = require('../configs');
 
 class ValidationError extends APIError {
   constructor(name, errors) {
-    super(`Validation:${name}`, 'Invalid fields', BAD_REQUEST);
+    super(`Validation:${name}`, 'Invalid fields', statusCode.BAD_REQUEST);
     this.errors = errors.map(({ value, msg, param }) => ({
       [param]: `Value "${value}" is not valid! ${msg}`,
     }));
