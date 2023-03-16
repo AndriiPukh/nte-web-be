@@ -5,6 +5,7 @@ const { redisHost, redisPort } = require('../configs');
 
 const redisClient = createClient({
   socket: { host: redisHost, port: redisPort },
+  legacyMode: true,
 });
 redisClient.connect().catch((err) => logger.error(err));
 
@@ -13,4 +14,4 @@ const redisStore = new RedisStore({
   prefix: 'nte-app',
 });
 
-module.exports = redisStore;
+module.exports = { redisStore, redisClient };

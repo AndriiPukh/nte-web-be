@@ -10,4 +10,8 @@ module.exports = {
   refreshSecret: process.env.REFRESH_TOKEN_PRIVATE_KEY,
   refreshTokenTime:
     process.env.REFRESH_TOKEN_EXPIRE_IN_MILISECOND || TWENTY_FOUR_HOURS,
+  maxConsecutiveFailsByUserNameAndIP:
+    process.env.MAX_CONSECUTIVE_FAILS_BY_USER_NAME_AND_IP || 10,
+  maxWrongAttemptsByIPerDay:
+    process.env.MAX_WRONG_ATTEMPTS_BY_IP_PER_DAY || 100,
 };

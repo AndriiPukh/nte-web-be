@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { registerValidation } = require('./auth.utils');
+const { loginRateLimit } = require('./rateLimit.miidleware');
 
 const {
   httpCreateUser,
@@ -10,7 +11,7 @@ const {
 const authRouter = Router();
 
 authRouter.post('/register', registerValidation, httpCreateUser);
-authRouter.post('/login', httpLogin);
+authRouter.post('/login', loginRateLimit, httpLogin);
 authRouter.get('/refresh', httpGetRefresh);
 
 module.exports = authRouter;
