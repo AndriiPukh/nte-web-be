@@ -3,10 +3,11 @@ const { env } = require('../configs/server');
 
 const customLevels = {
   levels: {
-    trace: 5,
-    debug: 4,
-    info: 3,
-    warn: 2,
+    trace: 6,
+    debug: 5,
+    info: 2,
+    http: 3,
+    warn: 4,
     error: 1,
     fatal: 0,
   },
@@ -15,6 +16,7 @@ const customLevels = {
     debug: 'green',
     info: 'green',
     warn: 'yellow',
+    http: 'magenta',
     error: 'red',
     fatal: 'red',
   },
@@ -45,7 +47,10 @@ class Logger {
     this.logger = winston.createLogger({
       level: env === 'development' ? 'trace' : 'error',
       levels: customLevels.levels,
-      transports: [env === 'development' ? transport : prodTransport],
+      transports: [
+        env === 'development' ? transport : prodTransport,
+        new winston.transports.File({ filename: 'logs/all.log' }),
+      ],
     });
     winston.addColors(customLevels.colors);
   }
@@ -72,6 +77,10 @@ class Logger {
 
   fatal(msg, meta) {
     this.logger.log('fatal', msg, meta);
+  }
+
+  http(msg, meta) {
+    this.logger.http(msg, meta);
   }
 }
 
