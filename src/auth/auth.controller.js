@@ -1,5 +1,9 @@
 const { validationResult } = require('express-validator');
 const {
+  limiterSlowBruteByIP,
+  limiterConsecutiveFailsByUserNameAndIP,
+} = require('./rateLimit.miidleware');
+const {
   getToken,
   verifyRefresh,
   passwordHash,
@@ -47,16 +51,30 @@ async function httpCreateUser(req, res, next) {
 
 async function httpLogin(req, res, next) {
   try {
+    const limitPromises = [limiterSlowBruteByIP.consume(req.ip)];
     const { userName, password } = req.body;
     const userDocument = await findUserByAuth(userName);
     if (userDocument === null) {
+      console.log(req.ip);
+      limitPromises.push(
+        limiterConsecutiveFailsByUserNameAndIP.consume(`${userName}_${req.ip}`)
+      );
+      await Promise.all(limitPromises);
       throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
     }
     const { password: hash, user } = userDocument;
     const isVerified = await verifyPassword(password, hash);
     if (!isVerified) {
+      limitPromises.push(
+        limiterConsecutiveFailsByUserNameAndIP.consume(`${userName}_${req.ip}`)
+      );
+      await Promise.all(limitPromises);
       throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
     } else {
+      await limiterConsecutiveFailsByUserNameAndIP.delete(
+        `${userName}_${req.ip}`
+      );
+      await limiterSlowBruteByIP.delete(req.ip);
       res
         .cookie('refreshToken', getToken(user.email, false), {
           httpOnly: false,
@@ -68,7 +86,15 @@ async function httpLogin(req, res, next) {
         .json({ user, accessToken: getToken(user, true) });
     }
   } catch (err) {
-    next(err);
+    if (err instanceof Error) {
+      next(err);
+    } else {
+      const timeOut = String(Math.round(err.msBeforeNext / 1000)) || 1;
+      res.set('Retry-After', timeOut);
+      res
+        .status(429)
+        .send(`Too many login attempts. Retry after ${timeOut} seconds`);
+    }
   }
 }
 

@@ -8,8 +8,7 @@ class ErrorHandler {
       await logger.error(`${err.name}:`, err.errors);
       return res.status(err.httpCode).send({ errors: err.errors });
     }
-    await logger.error(`${err.name}: ${err.message}`, err);
-
+    await logger.error(`${err.name}: ${err.message}`);
     return res.status(err.httpCode).send({ error: err.message });
   }
 
