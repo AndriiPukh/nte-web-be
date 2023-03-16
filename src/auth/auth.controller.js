@@ -9,7 +9,7 @@ const {
   passwordHash,
   verifyPassword,
 } = require('./auth.utils');
-const { refreshTokenTime } = require('../app/configs');
+const { refreshTokenTime, SESSION_OPTIONS } = require('../app/configs');
 const { AuthValidationError, AuthError } = require('./errors');
 const { findUserByAuth, addNewUser } = require('./auth.model');
 const {
@@ -55,7 +55,6 @@ async function httpLogin(req, res, next) {
     const { userName, password } = req.body;
     const userDocument = await findUserByAuth(userName);
     if (userDocument === null) {
-      console.log(req.ip);
       limitPromises.push(
         limiterConsecutiveFailsByUserNameAndIP.consume(`${userName}_${req.ip}`)
       );
@@ -127,8 +126,20 @@ async function httpGetRefresh(req, res, next) {
   }
 }
 
+async function httpGetLogout(req, res, next) {
+  req.session.destroy((err) => {
+    if (err) {
+      next(err);
+    }
+    res.clearCookie(SESSION_OPTIONS.name);
+    res.clearCookie('refreshToken');
+    res.status(200).send('Success!');
+  });
+}
+
 module.exports = {
   httpCreateUser,
   httpLogin,
   httpGetRefresh,
+  httpGetLogout,
 };
