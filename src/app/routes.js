@@ -9,7 +9,6 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     const { session } = req;
-    session.status = 'online';
     res.status(200).json({ session });
   }
 );

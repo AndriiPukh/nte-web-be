@@ -14,6 +14,7 @@ module.exports = {
     },
     rolling: true,
     resave: false,
+    unset: 'destroy',
     saveUninitialized: false,
   },
 };
