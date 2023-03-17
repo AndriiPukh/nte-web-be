@@ -13,6 +13,7 @@ jobs:
       REFRESH_TOKEN_PRIVATE_KEY: 'secret2'
       REDIS_PORT: 6379
       REDIS_HOST: localhost
+      SESSION_SECRET: 'secretSession'
     strategy:
       matrix:
         node-version: [ 19.x]
