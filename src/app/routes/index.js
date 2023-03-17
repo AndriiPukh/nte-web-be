@@ -1,8 +1,9 @@
 const { Router } = require('express');
-const passport = require('./services/passport');
-const { authRouter } = require('../auth');
+const passport = require('../services/passport');
+const { authRouter } = require('../../auth');
 
 const router = Router();
+
 router.use('/auth', authRouter);
 router.get(
   '/',

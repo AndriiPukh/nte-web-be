@@ -53,7 +53,7 @@ async function httpCreateUser(req, res, next) {
   }
 }
 
-async function httpLogin(req, res, next) {
+async function httpSignIn(req, res, next) {
   try {
     const limitPromises = [limiterSlowBruteByIP.consume(req.ip)];
     const { userName, password } = req.body;
@@ -143,7 +143,7 @@ async function httpGetLogout(req, res, next) {
 
 module.exports = {
   httpCreateUser,
-  httpLogin,
+  httpSignIn,
   httpGetRefresh,
   httpGetLogout,
 };

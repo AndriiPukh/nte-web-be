@@ -13,11 +13,12 @@ describe('Test Auth API', () => {
   });
 
   afterAll(async () => {
+    await UserDB.deleteMany({});
     await redisDisconnect();
     await mongoDisconnect();
   });
 
-  describe('POST /register', () => {
+  describe('POST /signup', () => {
     const validUserData = {
       userName: 'John Dou',
       email: 'john.dou@gmail.com',
@@ -54,7 +55,7 @@ describe('Test Auth API', () => {
 
     test('Create user', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(validUserData)
         .expect('Content-Type', /json/)
         .expect(statusCode.CREATED);
@@ -64,7 +65,7 @@ describe('Test Auth API', () => {
 
     test('User exist', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(validUserData)
         .expect('Content-Type', /json/)
         .expect(statusCode.CONFLICT);
@@ -74,7 +75,7 @@ describe('Test Auth API', () => {
 
     test('Validation errors', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/auth/signup')
         .send(invalidUserData)
         .expect('Content-Type', /json/)
         .expect(statusCode.BAD_REQUEST);
@@ -83,7 +84,7 @@ describe('Test Auth API', () => {
     });
   });
 
-  describe('POST /login', () => {
+  describe('POST /signin', () => {
     const validLogin = {
       userName: 'John Dou',
       password: 'Password',
@@ -98,18 +99,18 @@ describe('Test Auth API', () => {
       error: 'The username or password you entered is incorrect.',
     };
 
-    test('Login success', async () => {
+    test('Signin success', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/auth/signin')
         .send(validLogin)
         .expect('Content-Type', /json/)
         .expect(statusCode.OK);
       expect(response.body.user.userName).toEqual(validLogin.userName);
     });
 
-    test('Login invalid user name', async () => {
+    test('Signin invalid user name', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/auth/signin')
         .send({
           userName: invalidLoginData.userName,
           password: validLogin.password,
@@ -119,16 +120,15 @@ describe('Test Auth API', () => {
       expect(response.body).toMatchObject(loginError);
     });
 
-    test('Login invalid password', async () => {
+    test('Signin invalid password', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/auth/signin')
         .send({
           userName: validLogin.userName,
           password: invalidLoginData.password,
         })
         .expect('Content-Type', /json/)
         .expect(statusCode.BAD_REQUEST);
-      console.log(response, 'response cookies');
       expect(response.body).toMatchObject(loginError);
     });
   });
