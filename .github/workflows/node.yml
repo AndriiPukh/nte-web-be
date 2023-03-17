@@ -34,7 +34,7 @@ jobs:
       - name: Use Redis in GitHub Actions
         uses: supercharge/redis-github-action@1.5.0
         with:
-          redis version: ${{matrix.redis-version}}
+          redis-version: ${{matrix.redis-version}}
           redis-port: 6379
       - run: npm install
       - run: npm test

@@ -4,6 +4,7 @@ const redis = require('./redis');
 const server = require('./server');
 const session = require('./session');
 const httpStatusCode = require('./httpStatusCode');
+const swagger = require('./swagger');
 
 module.exports = {
   ...server,
@@ -12,4 +13,5 @@ module.exports = {
   ...redis,
   ...session,
   statusCode: httpStatusCode,
+  swagger,
 };

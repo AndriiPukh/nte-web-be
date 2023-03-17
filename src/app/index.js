@@ -6,16 +6,19 @@ const compression = require('compression');
 const session = require('express-session');
 const Sentry = require('@sentry/node');
 const Tracing = require('@sentry/tracing');
+const expressJSDocSwagger = require('express-jsdoc-swagger');
 const passport = require('./services/passport');
 const { redisStore } = require('./services/redis');
 const morganMiddleware = require('./middlewares/morgan.middleware');
 const invalidpathHandler = require('./middlewares/invalidPathHandler');
-const routes = require('./routes');
 
+const routes = require('./routes');
 const errorHandler = require('./middlewares/ErrorHandler');
-const { env, sentryDSN, SESSION_OPTIONS } = require('./configs');
+const { env, sentryDSN, SESSION_OPTIONS, swagger } = require('./configs');
 
 const app = express();
+expressJSDocSwagger(app)(swagger);
+
 if (env === 'production') {
   Sentry.init({
     dsn: sentryDSN,
@@ -38,11 +41,9 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 if (env === 'production') app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 if (env === 'production') app.use(Sentry.Handlers.tracingHandler());
