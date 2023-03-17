@@ -9,6 +9,10 @@ jobs:
     env:
       CI: true
       MONGO_URL_TEST: mongodb://localhost/nte
+      ACCESS_TOKEN_PRIVATE_KEY: 'secret'
+      REFRESH_TOKEN_PRIVATE_KEY: 'secret2'
+      REDIS_PORT: 6379
+      REDIS_HOST: localhost
     strategy:
       matrix:
         node-version: [ 19.x]
@@ -24,5 +28,10 @@ jobs:
         uses: supercharge/mongodb-github-action@1.6.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
+      - name: Use Redis in GitHub Actions
+        uses: zhulik/redis-action@1.1.0
+        with:
+          redis version: '5'
+          number of databases: 100
       - run: npm install
       - run: npm test
