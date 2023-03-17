@@ -5,7 +5,7 @@ class ValidationError extends APIError {
   constructor(name, errors) {
     super(`Validation:${name}`, 'Invalid fields', statusCode.BAD_REQUEST);
     this.errors = errors.map(({ value, msg, param }) => ({
-      [param]: `Value "${value}" is not valid! ${msg}`,
+      [param]: `Value '${value}' is not valid! ${msg}`,
     }));
   }
 }
