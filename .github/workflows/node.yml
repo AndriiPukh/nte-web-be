@@ -16,7 +16,8 @@ jobs:
     strategy:
       matrix:
         node-version: [ 19.x]
-        mongodb-version: ['4.4']
+        mongodb-version: ['4.4'],
+        redis-version: [4]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,9 +30,9 @@ jobs:
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
       - name: Use Redis in GitHub Actions
-        uses: zhulik/redis-action@1.1.0
+        uses: supercharge/redis-github-action@1.5.0
         with:
-          redis version: '5'
-          number of databases: 100
+          redis version: ${{matrix.redis-version}}
+          redis-port: 6379
       - run: npm install
       - run: npm test

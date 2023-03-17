@@ -1,16 +1,19 @@
 const request = require('supertest');
 const app = require('../app');
 const { mongoConnect, mongoDisconnect } = require('../app/services/mongo');
+const { redisConnect, redisDisconnect } = require('../app/services/redis');
 const UserDB = require('./user.mongo');
 const { statusCode } = require('../app/configs');
 
 describe('Test Auth API', () => {
   beforeAll(async () => {
+    await redisConnect();
     await mongoConnect();
     await UserDB.deleteMany({});
   });
 
   afterAll(async () => {
+    await redisDisconnect();
     await mongoDisconnect();
   });
 

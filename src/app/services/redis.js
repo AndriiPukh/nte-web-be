@@ -18,9 +18,13 @@ async function redisConnect() {
   await redisClient.connect();
 }
 
+async function redisDisconnect() {
+  await redisClient.disconnect();
+}
+
 const redisStore = new RedisStore({
   client: redisClient,
   prefix: 'nte-app',
 });
 
-module.exports = { redisStore, redisClient, redisConnect };
+module.exports = { redisStore, redisClient, redisConnect, redisDisconnect };
