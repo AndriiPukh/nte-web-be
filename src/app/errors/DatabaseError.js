@@ -1,9 +1,9 @@
 const BaseError = require('./BaseError');
-const { INTERNAL_SERVER } = require('./httpStatusCode');
+const { statusCode } = require('../configs');
 
 class DatabaseError extends BaseError {
   constructor(schema) {
-    super('DatabaseError', schema, INTERNAL_SERVER, false);
+    super('DatabaseError', schema, statusCode.INTERNAL_SERVER, false);
   }
 }
 

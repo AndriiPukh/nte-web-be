@@ -3,6 +3,7 @@ const { redisClient } = require('../app/services/redis');
 const {
   maxConsecutiveFailsByUserNameAndIP,
   maxWrongAttemptsByIPerDay,
+  statusCode,
 } = require('../app/configs');
 
 const limiterSlowBruteByIP = new RateLimiterRedis({
@@ -47,7 +48,7 @@ async function loginRateLimit(req, res, next) {
   if (retrySecs > 0) {
     res.set('Retry-After', String(retrySecs));
     res
-      .status(429)
+      .status(statusCode.TOO_MANY_REQUESTS)
       .send(`Too many requests. Retry after ${retrySecs} seconds.`);
   } else {
     next();

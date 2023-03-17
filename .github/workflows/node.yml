@@ -8,11 +8,18 @@ jobs:
   build:
     env:
       CI: true
-      MONGO_URL: mongodb://localhost/nasa
+      MONGO_URL_TEST: mongodb://localhost/nte
+      ACCESS_TOKEN_PRIVATE_KEY: 'secret'
+      REFRESH_TOKEN_PRIVATE_KEY: 'secret2'
+      REDIS_PORT: 6379
+      REDIS_HOST: localhost
+      SESSION_SECRET: 'secretSession'
+      SESSION_NAME: 'sid'
     strategy:
       matrix:
         node-version: [ 19.x]
         mongodb-version: ['4.4']
+        redis-version: ['4']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -24,5 +31,10 @@ jobs:
         uses: supercharge/mongodb-github-action@1.6.0
         with:
           mongodb-version: ${{ matrix.mongodb-version }}
+      - name: Use Redis in GitHub Actions
+        uses: supercharge/redis-github-action@1.5.0
+        with:
+          redis version: ${{matrix.redis-version}}
+          redis-port: 6379
       - run: npm install
       - run: npm test

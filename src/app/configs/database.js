@@ -2,7 +2,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 module.exports = {
-  dbName: process.env.MONGO_DB_CLUSTER,
-  dbUser: process.env.MONGO_DB_USER,
-  dbPassword: process.env.MONGO_DB_PASSWORD,
+  mongoUrl:
+    process.env.NODE_ENV === 'test'
+      ? process.env.MONGO_URL_TEST
+      : process.env.MONGO_URL,
 };

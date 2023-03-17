@@ -8,7 +8,7 @@ module.exports = {
     description: 'The username or password you entered is incorrect.',
   },
   USER_EXISTS_ALREADY: {
-    httpCode: 422,
+    httpCode: 409,
     description: 'User with this name or email already exist.',
   },
   REFRESH_TOKEN_IS_REQUIRED: {

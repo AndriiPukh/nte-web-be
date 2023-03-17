@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "serve": "nodemon src/server.js",
-    "test": "jest --passWithNoTests",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --passWithNoTests",
     "prepare": "husky install",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
@@ -35,6 +35,7 @@
     "connect-redis": "^7.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
@@ -49,6 +50,7 @@
     "passport-jwt": "^4.0.1",
     "rate-limiter-flexible": "^2.4.1",
     "redis": "^4.6.5",
+    "supertest": "^6.3.3",
     "winston": "^3.8.2"
   },
   "devDependencies": {
