@@ -15,6 +15,7 @@ jobs:
       REDIS_HOST: localhost
       SESSION_SECRET: 'secretSession'
       SESSION_NAME: 'sid'
+      GOOGLE_CLOUD_BUCKET_NAME: ${{secrets.GOOGLE_CLOUD_BUCKET_NAME}}
     strategy:
       matrix:
         node-version: [ 19.x]
