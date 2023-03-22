@@ -8,6 +8,10 @@ class ErrorHandler {
       await logger.error(`${err.name}:`, err.errors);
       return res.status(err.httpCode).send({ errors: err.errors });
     }
+    if (typeof err === 'string') {
+      await logger.error(`Error: ${err}`);
+      res.status(500).send({ error: err });
+    }
     await logger.error(`${err.name}: ${err.message}`);
     return res.status(err.httpCode).send({ error: err.message });
   }

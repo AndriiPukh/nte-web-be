@@ -9,4 +9,5 @@ module.exports = {
   sentryDSN: process.env.SENTRY_DSN,
   maxRequestPerWindow: process.env.RATE_LIMIT_REQUESTS,
   windowMs: MINUTES,
+  baseUrl: process.env.BASE_URL,
 };

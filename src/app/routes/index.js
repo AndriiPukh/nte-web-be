@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const passport = require('../services/passport');
+const passport = require('../../auth/services/passport');
 const { authRouter } = require('../../auth');
 const { multer } = require('../services/storage');
-const { uploadFile } = require('../utils/uploadFiletoStorage');
+const { uploadFile } = require('../utils/uploadFileToStorage');
 
 const router = Router();
 

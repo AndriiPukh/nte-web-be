@@ -6,6 +6,7 @@ const session = require('./session');
 const httpStatusCode = require('./httpStatusCode');
 const swagger = require('./swagger');
 const storage = require('./storage');
+const email = require('./email');
 
 module.exports = {
   ...server,
@@ -16,4 +17,5 @@ module.exports = {
   statusCode: httpStatusCode,
   swagger,
   storage,
+  email,
 };

@@ -2,26 +2,29 @@ const { validationResult } = require('express-validator');
 const {
   limiterSlowBruteByIP,
   limiterConsecutiveFailsByUserNameAndIP,
-} = require('./rateLimit.miidleware');
+} = require('./middlewares/rateLimit');
 const {
-  getToken,
-  verifyRefresh,
-  passwordHash,
-  verifyPassword,
-} = require('./auth.utils');
+  jwt: { verifyRefresh, getToken },
+  crypto: { verifyPassword, passwordHash },
+  email: { sendEmail },
+} = require('./utils');
 const {
   refreshTokenTime,
   SESSION_OPTIONS,
   statusCode,
+  baseUrl,
+  port,
 } = require('../app/configs');
 const { AuthValidationError, AuthError } = require('./errors');
-const { findUserByAuth, addNewUser } = require('./auth.model');
+const { saveToken, findToken, deleteToken } = require('./auth.model');
+const { UserModel } = require('../app/providers/mongoProvider');
 const {
   USER_EXISTS_ALREADY,
-  WRONG_USERNAME_OR_PASSWORD,
+  WRONG_EMAIL_OR_PASSWORD,
   REFRESH_TOKEN_IS_REQUIRED,
   REFRESH_TOKEN_IS_NOT_VERIFIED,
   REFRESH_TOKEN_IS_EXPIRED,
+  INVALID_LINK,
 } = require('./errors/authErrors.constants');
 
 async function httpCreateUser(req, res, next) {
@@ -30,24 +33,21 @@ async function httpCreateUser(req, res, next) {
     if (!validationErrors.isEmpty()) {
       throw new AuthValidationError(validationErrors.errors);
     }
-    const { userName, password, email } = req.body;
-    const isExist = await findUserByAuth(userName, email);
+    const { password, email } = req.body;
+    const isExist = await UserModel.findByUserEmail(email);
     if (isExist !== null) {
       throw new AuthError(USER_EXISTS_ALREADY);
     }
     const hashedPassword = await passwordHash(password);
-    const user = await addNewUser(userName, hashedPassword, email);
-    const accessToken = getToken(user, true);
-    const refreshToken = getToken(user.email, false);
-    res
-      .cookie('refreshToken', refreshToken, {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'None',
-        maxAge: refreshTokenTime,
-      })
-      .status(statusCode.CREATED)
-      .json({ accessToken, user });
+    const { _id } = await UserModel.saveUser({
+      password: hashedPassword,
+      email,
+    });
+    const accessToken = getToken({ userId: _id, email }, true);
+    await saveToken(_id, accessToken);
+    const message = `${baseUrl}${port}/api/auth/verify/${_id}/${accessToken}`;
+    await sendEmail(email, 'Verify Email', message);
+    res.status(statusCode.CREATED).send({ status: 'NOT_VERIFIED', email });
   } catch (err) {
     next(err);
   }
@@ -56,37 +56,39 @@ async function httpCreateUser(req, res, next) {
 async function httpSignIn(req, res, next) {
   try {
     const limitPromises = [limiterSlowBruteByIP.consume(req.ip)];
-    const { userName, password } = req.body;
-    const userDocument = await findUserByAuth(userName);
+    const { email, password } = req.body;
+    const userDocument = await UserModel.findByUserEmail(email);
     if (userDocument === null) {
       limitPromises.push(
-        limiterConsecutiveFailsByUserNameAndIP.consume(`${userName}_${req.ip}`)
+        limiterConsecutiveFailsByUserNameAndIP.consume(`${email}_${req.ip}`)
       );
       await Promise.all(limitPromises);
-      throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
+      throw new AuthError(WRONG_EMAIL_OR_PASSWORD);
+    } else if (!userDocument.verified) {
+      res.status(statusCode.CREATED).json({ status: 'NOT_VERIFIED', email });
     }
-    const { password: hash, user } = userDocument;
+    const { password: hash, _id } = userDocument;
     const isVerified = await verifyPassword(password, hash);
     if (!isVerified) {
       limitPromises.push(
-        limiterConsecutiveFailsByUserNameAndIP.consume(`${userName}_${req.ip}`)
+        limiterConsecutiveFailsByUserNameAndIP.consume(`${email}_${req.ip}`)
       );
       await Promise.all(limitPromises);
-      throw new AuthError(WRONG_USERNAME_OR_PASSWORD);
+      throw new AuthError(WRONG_EMAIL_OR_PASSWORD);
     } else {
-      await limiterConsecutiveFailsByUserNameAndIP.delete(
-        `${userName}_${req.ip}`
-      );
+      await limiterConsecutiveFailsByUserNameAndIP.delete(`${email}_${req.ip}`);
       await limiterSlowBruteByIP.delete(req.ip);
+      const accessToken = getToken({ userId: _id, email }, true);
+      await saveToken(_id, accessToken);
       res
-        .cookie('refreshToken', getToken(user.email, false), {
+        .cookie('refreshToken', getToken(email, false), {
           httpOnly: false,
           secure: false,
           sameSite: 'None',
           maxAge: refreshTokenTime,
         })
         .status(statusCode.OK)
-        .json({ user, accessToken: getToken(user, true) });
+        .json({ accessToken });
     }
   } catch (err) {
     if (err instanceof Error) {
@@ -105,32 +107,39 @@ async function httpGetRefresh(req, res, next) {
   try {
     const { refreshToken } = req.cookies;
     if (!refreshToken) throw new AuthError(REFRESH_TOKEN_IS_REQUIRED);
-
     const decoded = verifyRefresh(refreshToken);
     if (!decoded) {
       throw new AuthError(REFRESH_TOKEN_IS_EXPIRED);
     }
-    const userDocument = await findUserByAuth('', decoded.email);
+    const userDocument = await UserModel.findByUserEmail(decoded.email);
 
     if (!userDocument) {
       throw new AuthError(REFRESH_TOKEN_IS_NOT_VERIFIED);
     }
-    const { user } = userDocument;
+    const accessToken = getToken({
+      userId: userDocument._id,
+      email: userDocument.email,
+    });
+    await saveToken(userDocument._id, accessToken);
     res
-      .cookie('refreshToken', getToken(user.email, false), {
+      .cookie('refreshToken', getToken(userDocument.email, false), {
         httpOnly: false,
         secure: false,
         sameSite: 'None',
         maxAge: refreshTokenTime,
       })
       .status(statusCode.OK)
-      .send({ accessToken: getToken(user) });
+      .json({ accessToken });
   } catch (err) {
     next(err);
   }
 }
 
-async function httpGetLogout(req, res, next) {
+async function httpGetSignOut(req, res, next) {
+  if (req.user) {
+    const { userId } = JSON.parse(req.user);
+    await deleteToken(userId);
+  }
   req.session.destroy((err) => {
     if (err) {
       next(err);
@@ -141,9 +150,25 @@ async function httpGetLogout(req, res, next) {
   });
 }
 
+async function httpGetVerifyEmail(req, res, next) {
+  try {
+    const { id, token } = req.params;
+    const user = await UserModel.findByUserId(id);
+    if (!user) throw new AuthError(INVALID_LINK);
+    const accessToken = await findToken(id, token);
+    if (!accessToken) throw new AuthError(INVALID_LINK);
+    await UserModel.saveUser({ email: user.email, verified: true });
+    await deleteToken(user._id);
+    res.status(200).json({ status: 'VERIFIED' });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   httpCreateUser,
   httpSignIn,
   httpGetRefresh,
-  httpGetLogout,
+  httpGetLogout: httpGetSignOut,
+  httpGetVerifyEmail,
 };

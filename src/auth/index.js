@@ -1,7 +1,9 @@
 const authRouter = require('./auth.router');
-const UserDB = require('./user.mongo');
+const { findTokenByUserId } = require('./auth.model');
 
 module.exports = {
-  UserDB,
   authRouter,
+  AuthModel: {
+    findTokenByUserId,
+  },
 };

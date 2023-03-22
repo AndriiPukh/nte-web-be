@@ -1,12 +1,16 @@
 const { Router } = require('express');
-const { registerValidation } = require('./auth.utils');
-const { loginRateLimit } = require('./rateLimit.miidleware');
+const {
+  auth: { registerValidation },
+} = require('./utils');
+const { loginRateLimit } = require('./middlewares/rateLimit');
+const passport = require('./services/passport');
 
 const {
   httpCreateUser,
   httpSignIn,
   httpGetRefresh,
   httpGetLogout,
+  httpGetVerifyEmail,
 } = require('./auth.controller');
 
 const authRouter = Router();
@@ -116,6 +120,19 @@ authRouter.get('/refresh', httpGetRefresh);
  * @tags Auth
  * @return {string} 204
  */
-authRouter.get('/signout', httpGetLogout);
+authRouter.get(
+  '/signout',
+  passport.authenticate('jwt', { session: false }),
+  httpGetLogout
+);
+
+/**
+ * GET /auth/verify
+ * @tags Auth
+ * @param {string} request.params.id - id
+ * @param {string} token
+ * @return {string} 200
+ */
+authRouter.get('/verify/:id/:token', httpGetVerifyEmail);
 
 module.exports = authRouter;
