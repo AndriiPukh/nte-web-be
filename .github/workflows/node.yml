@@ -17,6 +17,10 @@ jobs:
       SESSION_NAME: 'sid'
       GOOGLE_CLOUD_BUCKET_NAME: ${{vars.GOOGLE_CLOUD_BUCKET_NAME}}
       GOOGLE_CLOUD_PROJECT_ID: ${{vars.GOOGLE_CLOUD_BUCKET_NAME}}
+      NODE_MAILER_PASSWORD: ${{vars.NODE_MAILER_PASSWORD}}
+      NODE_MAILER_ACCOUNT: ${{vars.NODE_MAILER_ACCOUNT}}
+      NODE_MAILER_HOST: 'smtp.gmail.com'
+      NODE_MAILER_PORT: 465
     strategy:
       matrix:
         node-version: [ 19.x]

@@ -3,13 +3,13 @@ module.exports = {
     httpCode: 400,
     description: 'Some thing went wrong.',
   },
-  WRONG_USERNAME_OR_PASSWORD: {
+  WRONG_EMAIL_OR_PASSWORD: {
     httpCode: 400,
-    description: 'The username or password you entered is incorrect.',
+    description: 'The email or password you entered is incorrect.',
   },
   USER_EXISTS_ALREADY: {
     httpCode: 409,
-    description: 'User with this name or email already exist.',
+    description: 'User already exist. Check your email to verify!',
   },
   REFRESH_TOKEN_IS_REQUIRED: {
     httpCode: 403,
@@ -22,5 +22,9 @@ module.exports = {
   REFRESH_TOKEN_IS_NOT_VERIFIED: {
     httpCode: 401,
     description: 'Unauthorized!',
+  },
+  INVALID_LINK: {
+    httpCode: 400,
+    message: 'INVALID_LINK',
   },
 };

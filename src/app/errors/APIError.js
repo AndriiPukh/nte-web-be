@@ -8,7 +8,7 @@ class APIError extends BaseError {
     httpCode = statusCode.INTERNAL_SERVER,
     isOperational = true
   ) {
-    super(name, description, httpCode, isOperational);
+    super(name, description, isOperational, httpCode);
   }
 }
 

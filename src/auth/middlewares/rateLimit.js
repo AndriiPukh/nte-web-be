@@ -1,10 +1,10 @@
 const { RateLimiterRedis } = require('rate-limiter-flexible');
-const { redisClient } = require('../app/services/redis');
+const { redisClient } = require('../../app/services/redis');
 const {
   maxConsecutiveFailsByUserNameAndIP,
   maxWrongAttemptsByIPerDay,
   statusCode,
-} = require('../app/configs');
+} = require('../../app/configs');
 
 const limiterSlowBruteByIP = new RateLimiterRedis({
   storeClient: redisClient,
@@ -22,11 +22,11 @@ const limiterConsecutiveFailsByUserNameAndIP = new RateLimiterRedis({
   blockDuration: 3600,
 });
 
-const getUserNameIPKey = (userName, ip) => `${userName}_${ip}`;
+const getUserNameIPKey = (email, ip) => `${email}_${ip}`;
 
 async function loginRateLimit(req, res, next) {
   const ipAddr = req.ip;
-  const userNameIPKey = getUserNameIPKey(req.body.userName, ipAddr);
+  const userNameIPKey = getUserNameIPKey(req.body.email, ipAddr);
   const [resUserNameAndIP, resSlowByIP] = await Promise.all([
     limiterConsecutiveFailsByUserNameAndIP.get(userNameIPKey),
     limiterSlowBruteByIP.get(ipAddr),

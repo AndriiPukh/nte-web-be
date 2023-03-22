@@ -1,42 +1,23 @@
-const UserDB = require('./user.mongo');
-const { DatabaseError } = require('./errors');
+const AuthDB = require('./auth.mongo');
 
-async function findUserByAuth(userName, email = '') {
-  try {
-    const userDocument = await UserDB.findOne(
-      {
-        $or: [{ userName }, { email }],
-      },
-      { __v: 0 }
-    );
-
-    if (!userDocument) {
-      return null;
-    }
-
-    const {
-      _doc: { password: hash, _v: _, ...userData },
-    } = userDocument;
-    return { password: hash, user: userData };
-  } catch (err) {
-    throw new DatabaseError('findUserByAuth', err);
-  }
-}
-async function addNewUser(userName, password, email) {
-  try {
-    const newUser = new UserDB({ userName, password, email });
-    // TODO check
-    const userDoc = await newUser.save();
-    const {
-      _doc: { password: hash, __v, _id, ...user },
-    } = userDoc;
-    return user;
-  } catch (err) {
-    throw new DatabaseError('addNewUser', err);
-  }
+async function saveToken(userId, accessToken) {
+  await AuthDB.findOneAndUpdate(
+    { userId },
+    { userId, accessToken },
+    { upsert: true }
+  ).lean();
 }
 
-module.exports = {
-  findUserByAuth,
-  addNewUser,
-};
+async function findToken(userId, accessToken) {
+  return AuthDB.findOne({ userId, accessToken }, { __v: 0, _id: 0 }).lean();
+}
+
+async function findTokenByUserId(userId) {
+  return AuthDB.findOne({ userId }, { __v: 0, _id: 0 }).lean();
+}
+
+async function deleteToken(userId) {
+  return AuthDB.findOneAndRemove({ userId });
+}
+
+module.exports = { saveToken, findToken, findTokenByUserId, deleteToken };

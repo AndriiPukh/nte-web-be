@@ -1,7 +1,7 @@
 const { APIError } = require('../../app/errors');
 
 class AuthError extends APIError {
-  constructor({ httpCode, description }) {
+  constructor({ description, httpCode }) {
     super('Auth', description, httpCode);
   }
 }
