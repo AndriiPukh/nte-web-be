@@ -1,7 +1,7 @@
 const passport = require('passport');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 const { accessSecret } = require('../../app/configs');
-const { findTokenByUserId } = require('../auth.model');
+const { findToken } = require('../auth.model');
 const { AuthError } = require('../errors');
 
 passport.use(
@@ -9,21 +9,16 @@ passport.use(
     {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: accessSecret,
+      passReqToCallback: true,
     },
-    async (payload, done) => {
+    async (req, payload, done) => {
       try {
         if (Date.now() >= payload.exp * 1000)
-          throw new AuthError({
-            description: 'Unauthorized! Access Token not verified!',
-            httpCode: 401,
-          });
+          throw new AuthError('UNAUTHORIZED');
         const { userId } = JSON.parse(payload.user);
-        const token = await findTokenByUserId(userId);
-        if (!token)
-          throw new AuthError({
-            description: 'Unauthorized! Access Token not verified!',
-            httpCode: 401,
-          });
+        const accessToken = req.headers.authorization.replace('Bearer ', '');
+        const token = await findToken(userId, accessToken);
+        if (!token) throw new AuthError('UNAUTHORIZED');
         return done(null, payload.user);
       } catch (err) {
         return done(err, false);

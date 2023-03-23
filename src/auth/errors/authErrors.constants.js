@@ -25,6 +25,10 @@ module.exports = {
   },
   INVALID_LINK: {
     httpCode: 400,
-    message: 'INVALID_LINK',
+    description: 'INVALID_LINK',
+  },
+  UNAUTHORIZED: {
+    httpCode: 401,
+    description: 'Unauthorized! Access Token not verified!',
   },
 };

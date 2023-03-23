@@ -9,4 +9,9 @@ module.exports = {
     httpCode: 404,
     description: 'User not found!',
   },
+  INVALID_ID: {
+    name: 'UserError',
+    httpCode: 400,
+    description: 'User id wrong format!',
+  },
 };

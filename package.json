@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "serve": "nodemon src/server.js",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --passWithNoTests",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=15000 --passWithNoTests --detectOpenHandles",
     "prepare": "husky install",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",

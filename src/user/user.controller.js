@@ -1,7 +1,8 @@
 const { uploadFile } = require('../app/utils/uploadFileToStorage');
-const { saveUser, findByUserId } = require('./user.model');
+const { saveUser, findByUserId, getAllUsers } = require('./user.model');
 const UserError = require('./errors/UserErorr');
 const { statusCode } = require('../app/configs');
+const { getPagination } = require('../app/utils/query');
 
 async function httpPostUserUpdate(req, res, next) {
   try {
@@ -38,10 +39,13 @@ async function httpGetUser(req, res, next) {
 }
 
 async function httpGetUsers(req, res, next) {
-  const { skip, limit } = req.params;
+  const { skip, limit } = getPagination(req.query);
+  const users = await getAllUsers(skip, limit);
+  return res.status(statusCode.OK).json(users);
 }
 
 module.exports = {
   httpPostUserUpdate,
   httpGetUser,
+  httpGetUsers,
 };

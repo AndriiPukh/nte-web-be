@@ -1,22 +1,26 @@
 const { Router } = require('express');
-const { httpPostUserUpdate, httpGetUser } = require('./user.controller');
+const {
+  httpPostUserUpdate,
+  httpGetUser,
+  httpGetUsers,
+} = require('./user.controller');
 const passport = require('../auth/services/passport');
 const permissionCheck = require('./middlewares/permissionCheck');
 const { multer } = require('../app/services/storage');
 
 const userRouter = Router();
 
+const authenticate = passport.authenticate('jwt', { session: false });
+
 userRouter.post(
   '/update',
-  passport.authenticate('jwt', { session: false }),
+  authenticate,
   multer.single('photo'),
   permissionCheck,
   httpPostUserUpdate
 );
-userRouter.get(
-  '/:id',
-  passport.authenticate('jwt', { session: false }),
-  httpGetUser
-);
+userRouter.get('/:id', authenticate, httpGetUser);
+
+userRouter.get('/', authenticate, httpGetUsers);
 
 module.exports = userRouter;
