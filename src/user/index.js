@@ -1,3 +1,4 @@
+const userRouter = require('./user.router');
 const {
   findByUserId,
   findByUserEmail,
@@ -12,4 +13,5 @@ module.exports = {
     saveUser,
     deleteAll,
   },
+  userRouter,
 };

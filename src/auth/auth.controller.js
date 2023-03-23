@@ -39,11 +39,11 @@ async function httpCreateUser(req, res, next) {
       throw new AuthError(USER_EXISTS_ALREADY);
     }
     const hashedPassword = await passwordHash(password);
-    const { _id } = await UserModel.saveUser({
+    const { _id, role } = await UserModel.saveUser({
       password: hashedPassword,
       email,
     });
-    const accessToken = getToken({ userId: _id, email }, true);
+    const accessToken = getToken({ userId: _id, email, role }, true);
     await saveToken(_id, accessToken);
     const message = `${baseUrl}${port}/api/auth/verify/${_id}/${accessToken}`;
     await sendEmail(email, 'Verify Email', message);
@@ -67,7 +67,7 @@ async function httpSignIn(req, res, next) {
     } else if (!userDocument.verified) {
       res.status(statusCode.CREATED).json({ status: 'NOT_VERIFIED', email });
     }
-    const { password: hash, _id } = userDocument;
+    const { password: hash, _id, role } = userDocument;
     const isVerified = await verifyPassword(password, hash);
     if (!isVerified) {
       limitPromises.push(
@@ -78,7 +78,7 @@ async function httpSignIn(req, res, next) {
     } else {
       await limiterConsecutiveFailsByUserNameAndIP.delete(`${email}_${req.ip}`);
       await limiterSlowBruteByIP.delete(req.ip);
-      const accessToken = getToken({ userId: _id, email }, true);
+      const accessToken = getToken({ userId: _id, email, role }, true);
       await saveToken(_id, accessToken);
       res
         .cookie('refreshToken', getToken(email, false), {
@@ -116,9 +116,12 @@ async function httpGetRefresh(req, res, next) {
     if (!userDocument) {
       throw new AuthError(REFRESH_TOKEN_IS_NOT_VERIFIED);
     }
+
+    const { _id, email, role } = userDocument;
     const accessToken = getToken({
-      userId: userDocument._id,
-      email: userDocument.email,
+      userId: _id,
+      email,
+      role,
     });
     await saveToken(userDocument._id, accessToken);
     res

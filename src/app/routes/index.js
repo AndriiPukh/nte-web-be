@@ -1,12 +1,14 @@
 const { Router } = require('express');
 const passport = require('../../auth/services/passport');
 const { authRouter } = require('../../auth');
+const { userRouter } = require('../../user');
 const { multer } = require('../services/storage');
 const { uploadFile } = require('../utils/uploadFileToStorage');
 
 const router = Router();
 
 router.use('/auth', authRouter);
+router.use('/users', userRouter);
 router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
