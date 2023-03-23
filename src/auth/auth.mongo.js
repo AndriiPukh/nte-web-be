@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
+const { accessTokenTime } = require('../app/configs');
 
 const tokenSchema = new Schema({
   userId: {
@@ -10,6 +11,11 @@ const tokenSchema = new Schema({
   accessToken: {
     type: String,
     required: true,
+  },
+  createdAt: {
+    type: Date,
+    expires: accessTokenTime,
+    default: Date.now(),
   },
 });
 

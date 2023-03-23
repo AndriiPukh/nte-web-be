@@ -108,7 +108,7 @@ describe('Test Auth API', () => {
       const response = await request(app)
         .post('/api/auth/signin')
         .send({
-          email: 'invalid@fdc.com',
+          email: 'invalid@fac.com',
           password: validUserData.password,
         })
         .expect('Content-Type', /json/)
