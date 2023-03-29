@@ -28,8 +28,15 @@ async function saveUser(user, id = null) {
   }).lean();
 }
 
-async function getAllUsers(skip, limit) {
+async function getAllActiveUsers(skip, limit) {
   return UserDB.find({ verified: true }, { __v: 0, password: 0 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+}
+
+async function getAllUsers(skip, limit) {
+  return UserDB.find({}, { __v: 0, password: 0 })
     .skip(skip)
     .limit(limit)
     .lean();
@@ -47,6 +54,7 @@ module.exports = {
   findByUserId,
   findByUserEmail,
   saveUser,
+  getAllActiveUsers,
   getAllUsers,
   deleteUser,
   deleteAll,

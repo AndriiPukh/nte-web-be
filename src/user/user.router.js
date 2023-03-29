@@ -3,6 +3,7 @@ const {
   httpPostUserUpdate,
   httpGetUser,
   httpGetUsers,
+  httpGetAllUsersAdmin,
 } = require('./user.controller');
 const passport = require('../auth/services/passport');
 const permissionCheck = require('./middlewares/permissionCheck');
@@ -19,6 +20,11 @@ userRouter.post(
   permissionCheck,
   httpPostUserUpdate
 );
+userRouter.get('/admin/', [
+  authenticate,
+  permissionCheck,
+  httpGetAllUsersAdmin,
+]);
 userRouter.get('/:id', authenticate, httpGetUser);
 
 userRouter.get('/', authenticate, httpGetUsers);

@@ -1,5 +1,11 @@
 const { uploadFile } = require('../app/utils/uploadFileToStorage');
-const { saveUser, findByUserId, getAllUsers } = require('./user.model');
+const {
+  saveUser,
+  findByUserId,
+  getAllUsers,
+  getAllActiveUsers,
+} = require('./user.model');
+const { findTokenByUserId } = require('../auth/auth.model');
 const UserError = require('./errors/UserErorr');
 const { statusCode } = require('../app/configs');
 const { getPagination } = require('../app/utils/query');
@@ -40,12 +46,32 @@ async function httpGetUser(req, res, next) {
 
 async function httpGetUsers(req, res, next) {
   const { skip, limit } = getPagination(req.query);
+  const users = await getAllActiveUsers(skip, limit);
+  res.status(statusCode.OK).json(users);
+}
+
+async function httpGetAllUsersAdmin(req, res, next) {
+  const { skip, limit } = getPagination(req.query);
   const users = await getAllUsers(skip, limit);
-  return res.status(statusCode.OK).json(users);
+
+  if (users.length) {
+    for (let i = 0; i < users.length; i++) {
+      if (!users[i].verified) {
+        // eslint-disable-next-line no-await-in-loop
+        const token = await findTokenByUserId(users[i]._id);
+        if (token) {
+          users[i].token = token.accessToken;
+        }
+      }
+    }
+  }
+
+  res.status(statusCode.OK).json(users);
 }
 
 module.exports = {
   httpPostUserUpdate,
   httpGetUser,
   httpGetUsers,
+  httpGetAllUsersAdmin,
 };
