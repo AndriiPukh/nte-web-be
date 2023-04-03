@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "serve": "nodemon src/server.js",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=15000 --passWithNoTests --detectOpenHandles",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=20000 --detectOpenHandles",
     "prepare": "husky install",
     "lint": "eslint --debug src/",
     "lint:write": "eslint --debug src/ --fix",
@@ -29,6 +29,7 @@
   "homepage": "https://github.com/AndriiPukh/nte-web-be#readme",
   "dependencies": {
     "@google-cloud/storage": "^6.9.4",
+    "@jest/test-sequencer": "^29.5.0",
     "@sentry/node": "^7.41.0",
     "@sentry/tracing": "^7.41.0",
     "bcryptjs": "^2.4.3",

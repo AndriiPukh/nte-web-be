@@ -1,6 +1,5 @@
 const { check } = require('express-validator');
 
-const bcryptjs = require('bcryptjs');
 const {
   EMAIL_IS_EMPTY,
   EMAIL_IS_IN_WRONG_FORMAT,
