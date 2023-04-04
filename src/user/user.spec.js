@@ -1,12 +1,10 @@
 const request = require('supertest');
-const { response } = require('express');
 const app = require('../app');
 const { statusCode } = require('../app/configs');
 const { getAllUsers } = require('./user.model');
 const { findTokenByUserId } = require('../auth/auth.model');
 const { redisConnect, redisDisconnect } = require('../app/services/redis');
 const { mongoConnect, mongoDisconnect } = require('../app/services/mongo');
-const { UserModel } = require('../app/providers/mongoProvider');
 
 describe('Test Users API', () => {
   let user;

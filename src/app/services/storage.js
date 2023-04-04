@@ -1,7 +1,6 @@
 const { Storage } = require('@google-cloud/storage');
 const path = require('path');
 const Multer = require('multer');
-const { log } = require('winston');
 const {
   storage: { bucketName, projectId },
 } = require('../configs');

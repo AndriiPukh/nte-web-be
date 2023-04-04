@@ -60,7 +60,7 @@ async function httpGetUsers(req, res, next) {
   }
 }
 
-async function httpGetAllUsersAdmin(req, res, next) {
+async function httpGetAllUsersAdmin(req, res) {
   const { skip, limit } = getPagination(req.query);
   const users = await getAllUsers(skip, limit);
 
