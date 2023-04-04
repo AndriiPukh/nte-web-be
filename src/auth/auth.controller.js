@@ -21,7 +21,7 @@ const UserError = require('../user/errors/UserErorr');
 const { saveToken, findToken, deleteToken } = require('./auth.model');
 const { UserModel } = require('../app/providers/mongoProvider');
 
-async function httpCreateUser(req, res, next) {
+async function httpSignUp(req, res, next) {
   const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
   try {
     if (!validationErrors.isEmpty()) {
@@ -170,7 +170,7 @@ async function httpGetVerifyEmail(req, res, next) {
 }
 
 module.exports = {
-  httpCreateUser,
+  httpCreateUser: httpSignUp,
   httpSignIn,
   httpGetRefresh,
   httpGetLogout: httpGetSignOut,

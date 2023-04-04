@@ -8,6 +8,7 @@ const {
 const passport = require('../auth/services/passport');
 const permissionCheck = require('./middlewares/permissionCheck');
 const { multer } = require('../app/services/storage');
+const { validation } = require('./utils');
 
 const userRouter = Router();
 
@@ -18,6 +19,7 @@ userRouter.post(
   authenticate,
   multer.single('photo'),
   permissionCheck,
+  validation,
   httpPostUserUpdate
 );
 userRouter.get('/admin/', [

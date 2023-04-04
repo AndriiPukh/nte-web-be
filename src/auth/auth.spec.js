@@ -4,6 +4,7 @@ const { mongoConnect, mongoDisconnect } = require('../app/services/mongo');
 const { redisConnect, redisDisconnect } = require('../app/services/redis');
 const { UserModel } = require('../app/providers/mongoProvider');
 const AuthModel = require('./auth.model');
+const AuthDB = require('./auth.mongo');
 const { statusCode } = require('../app/configs');
 
 describe('Test Auth API', () => {
@@ -15,10 +16,10 @@ describe('Test Auth API', () => {
     await redisConnect();
     await mongoConnect();
     await UserModel.deleteAll();
+    await AuthDB.deleteMany();
   });
 
   afterAll(async () => {
-    await UserModel.deleteAll();
     await redisDisconnect();
     await mongoDisconnect();
   });
@@ -31,11 +32,11 @@ describe('Test Auth API', () => {
     const possibleErrors = ['User already exist. Check your email to verify!'];
     const validationErrors = [
       {
-        email: "Value 'john.dougmail.com' is not valid! Email is wrong format!",
+        email: "Value 'john.dougmail.com' - Email is wrong format!",
       },
       {
         password:
-          "Value 'Pa' is not valid! The password must be more than 8 characters long.",
+          "Value 'Pa' - The password must be more than 8 characters long.",
       },
     ];
 

@@ -1,3 +1,4 @@
+const { validationResult } = require('express-validator');
 const { uploadFile } = require('../app/utils/uploadFileToStorage');
 const {
   saveUser,
@@ -6,12 +7,17 @@ const {
   getAllActiveUsers,
 } = require('./user.model');
 const { findTokenByUserId } = require('../auth/auth.model');
-const UserError = require('./errors/UserErorr');
+const { UserError, ValidationError } = require('./errors');
 const { statusCode } = require('../app/configs');
 const { getPagination } = require('../app/utils/query');
 
 async function httpPostUserUpdate(req, res, next) {
   try {
+    const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!validationErrors.isEmpty()) {
+      throw new ValidationError(validationErrors.errors);
+    }
+
     const { id, ...additionalInformation } = req.body;
     if (req.file) {
       additionalInformation.photoUrl = await uploadFile(req.file);
@@ -45,9 +51,13 @@ async function httpGetUser(req, res, next) {
 }
 
 async function httpGetUsers(req, res, next) {
-  const { skip, limit } = getPagination(req.query);
-  const users = await getAllActiveUsers(skip, limit);
-  res.status(statusCode.OK).json(users);
+  try {
+    const { skip, limit } = getPagination(req.query);
+    const users = await getAllActiveUsers(skip, limit);
+    res.status(statusCode.OK).send(users);
+  } catch (err) {
+    next(err);
+  }
 }
 
 async function httpGetAllUsersAdmin(req, res, next) {
