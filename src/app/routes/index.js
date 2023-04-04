@@ -13,7 +13,7 @@ router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
   multer.single('photo'),
-  async (req, res, next) => {
+  async (req, res) => {
     if (!req.file) {
       res.status(400).send('No file upload.');
     }

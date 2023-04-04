@@ -95,16 +95,6 @@ describe('Test Auth API', () => {
     const loginError = {
       error: 'The email or password you entered is incorrect.',
     };
-
-    test('Signin success', async () => {
-      const response = await request(app)
-        .post('/api/auth/signin')
-        .send(validUserData)
-        .expect('Content-Type', /json/)
-        .expect(statusCode.OK);
-      expect(response.body).toHaveProperty('accessToken');
-    });
-
     test('Signin invalid email', async () => {
       const response = await request(app)
         .post('/api/auth/signin')
@@ -127,6 +117,14 @@ describe('Test Auth API', () => {
         .expect('Content-Type', /json/)
         .expect(statusCode.BAD_REQUEST);
       expect(response.body).toMatchObject(loginError);
+    });
+    test('Signin success', async () => {
+      const response = await request(app)
+        .post('/api/auth/signin')
+        .send(validUserData)
+        .expect('Content-Type', /json/)
+        .expect(statusCode.OK);
+      expect(response.body).toHaveProperty('accessToken');
     });
   });
 });
