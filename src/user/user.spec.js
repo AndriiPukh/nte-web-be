@@ -35,7 +35,7 @@ describe('Test Users API', () => {
     });
   });
 
-  describe('GET /:id', () => {
+  describe('GET /users/:id', () => {
     test('Get user by specific id', async () => {
       // eslint-disable-next-line no-shadow
       const response = await request(app)
@@ -55,7 +55,7 @@ describe('Test Users API', () => {
     });
   });
 
-  describe('POST users/update', () => {
+  describe('POST /users/update', () => {
     test('Success user update', async () => {
       const validUserObject = {
         birthDate: '1995-07-17T00:00:00.000Z',
