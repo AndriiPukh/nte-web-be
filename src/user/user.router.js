@@ -5,15 +5,12 @@ const {
   httpGetUsers,
   httpGetAllUsersAdmin,
 } = require('./user.controller');
-const passport = require('../auth/services/passport');
-const permissionCheck = require('./middlewares/permissionCheck');
+const { authenticate } = require('../auth/services/passport');
+const permissionCheck = require('../app/middlewares/permissionCheck');
 const { multer } = require('../app/services/storage');
 const { validation } = require('./utils');
 
 const userRouter = Router();
-
-const authenticate = passport.authenticate('jwt', { session: false });
-
 /**
  * A UpdateBody
  * @typedef {object} UpdateBody

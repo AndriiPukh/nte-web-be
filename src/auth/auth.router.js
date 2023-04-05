@@ -3,7 +3,7 @@ const {
   auth: { registerValidation },
 } = require('./utils');
 const { loginRateLimit } = require('./middlewares/rateLimit');
-const passport = require('./services/passport');
+const { authenticate } = require('./services/passport');
 
 const {
   httpCreateUser,
@@ -120,11 +120,7 @@ authRouter.get('/refresh', httpGetRefresh);
  * @tags Auth
  * @return {string} 204
  */
-authRouter.get(
-  '/signout',
-  passport.authenticate('jwt', { session: false }),
-  httpGetLogout
-);
+authRouter.get('/signout', authenticate, httpGetLogout);
 
 /**
  * GET /auth/verify

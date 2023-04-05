@@ -35,4 +35,6 @@ passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
 
-module.exports = passport;
+const authenticate = passport.authenticate('jwt', { session: false });
+
+module.exports = { passport, authenticate };
