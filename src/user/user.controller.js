@@ -7,7 +7,8 @@ const {
   getAllActiveUsers,
 } = require('./user.model');
 const { findTokenByUserId } = require('../auth/auth.model');
-const { UserError, ValidationError } = require('./errors');
+const { UserError } = require('./errors');
+const { ValidationError } = require('../app/errors');
 const { statusCode } = require('../app/configs');
 const { getPagination } = require('../app/utils/query');
 
@@ -15,7 +16,7 @@ async function httpPostUserUpdate(req, res, next) {
   try {
     const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
     if (!validationErrors.isEmpty()) {
-      throw new ValidationError(validationErrors.errors);
+      throw new ValidationError('User', validationErrors.errors);
     }
 
     const { id, ...additionalInformation } = req.body;

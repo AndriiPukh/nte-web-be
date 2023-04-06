@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+const { log } = require('winston');
 const {
   findAllProducts,
   findProductById,
@@ -5,7 +7,10 @@ const {
 } = require('./product.model');
 const { ProductError } = require('./errors');
 const { getPagination, matchId } = require('../app/utils');
+const { normalizeCategory } = require('./utils');
 const { statusCode } = require('../app/configs');
+const { ValidationError } = require('../app/errors');
+const { uploadFile } = require('../app/utils/uploadFileToStorage');
 
 async function httpGetAllProducts(req, res, next) {
   try {
@@ -35,8 +40,34 @@ async function httpGetProductById(req, res, next) {
 
 async function httpCreateProduct(req, res, next) {
   try {
-    const product = await saveProduct();
-    res.status(statusCode.Ok).send('success');
+    const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!validationErrors.isEmpty()) {
+      throw new ValidationError('Products', validationErrors.errors);
+    }
+    const newProduct = {};
+    if (req.file) {
+      newProduct.imageUrl = await uploadFile(req.file);
+    }
+    const {
+      category: nonVerifiedCategory,
+      subCategory: nonVerifiedSub,
+      ...productData
+    } = req.body;
+    const { category, subCategory } = normalizeCategory(
+      nonVerifiedCategory,
+      nonVerifiedSub
+    );
+    newProduct.category = category;
+    newProduct.subCategory = subCategory;
+    const product = Object.assign(newProduct, productData, {
+      creator: JSON.parse(req.user).userId,
+    });
+    if (product.price) {
+      product.price = +product.price;
+    }
+    product.amount = +product.amount;
+    await saveProduct(product);
+    res.status(statusCode.OK).json({ status: 'success' });
   } catch (err) {
     next(err);
   }
@@ -54,7 +85,7 @@ async function httMarkProductAsDelete(req, res, next) {
     }
     product.deleted = true;
     await product.save();
-    res.status(204).send('success');
+    res.status(statusCode.OK).send('success');
   } catch (err) {
     next(err);
   }

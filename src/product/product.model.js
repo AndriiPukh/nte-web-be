@@ -1,11 +1,9 @@
+const mongoose = require('mongoose');
 const ProductDB = require('./product.mongo');
 
 async function saveProduct(product) {
-  return ProductDB.findOneAndUpdate({ _id: product._id }, product, {
-    upsert: true,
-    new: true,
-    fields: { __v: 0 },
-  });
+  const createdProduct = new ProductDB(product);
+  return createdProduct.save();
 }
 
 async function findAllProducts(skip, limit, filter = {}) {
