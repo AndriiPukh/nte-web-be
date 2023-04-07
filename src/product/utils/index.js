@@ -1,4 +1,17 @@
-const { productValidation } = require('./product.validation');
-const normalizeCategory = require('./normalizeCategories');
+const {
+  productCreateValidation,
+  productUpdateValidation,
+  productComments,
+} = require('./productValidation');
+const normalizeFields = require('./normalizeFields');
+const checkPermission = require('./checkPermission');
 
-module.exports = { validation: productValidation, normalizeCategory };
+module.exports = {
+  validation: {
+    productCreateValidation,
+    productUpdateValidation,
+    productComments,
+  },
+  normalizeFields,
+  checkPermission,
+};

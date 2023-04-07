@@ -1,4 +1,9 @@
 module.exports = {
+  FORBIDDEN: {
+    name: 'Permission',
+    httpCode: 403,
+    description: 'You do not have access to edit/remove this resource.',
+  },
   NOT_FOUND: {
     name: 'Product',
     httpCode: 404,

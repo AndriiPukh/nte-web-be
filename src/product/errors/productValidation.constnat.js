@@ -9,4 +9,7 @@ module.exports = {
   WRONG_PRICE_FORMAT: 'Wrong price format, must be a number/decimal',
   WRONG_UNITS: 'Wrong unit',
   WRONG_AMOUNT: 'Wrong amount format, must be a number',
+  WRONG_COMMENT_LENGTH:
+    'Length must be more than 3 and less than 300 characters',
+  WRONG_COMMENT_FORMAT: 'Wrong comment text',
 };
