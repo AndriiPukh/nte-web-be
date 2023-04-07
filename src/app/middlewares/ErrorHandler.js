@@ -12,9 +12,9 @@ class ErrorHandler {
       await logger.error(`Error: ${err}`);
       res.status(500).send({ error: err });
     }
-    if (err instanceof ReferenceError) {
+    if (err instanceof ReferenceError || err instanceof TypeError) {
       await logger.error(`${err.name}: ${err.message}`);
-      return res.status(500).send({ error: err.message });
+      return res.status(500).send({ error: 'Something went wrong!' });
     }
     await logger.error(`${err.name}: ${err.message}`);
     return res.status(err.httpCode).send({ error: err.message });

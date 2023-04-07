@@ -2,16 +2,16 @@ module.exports = {
   FORBIDDEN: {
     name: 'Permission',
     httpCode: 403,
-    description: 'You do not have access to edit this resource.',
+    description: 'You do not have access to edit/remove this resource.',
   },
   NOT_FOUND: {
-    name: 'UserError',
+    name: 'User',
     httpCode: 404,
     description: 'User not found!',
   },
   INVALID_ID: {
-    name: 'UserError',
+    name: 'User',
     httpCode: 400,
-    description: 'User id wrong format!',
+    description: 'Invalid user ID format!',
   },
 };

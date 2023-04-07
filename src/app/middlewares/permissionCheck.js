@@ -1,4 +1,4 @@
-const UserError = require('../errors/UserErorr');
+const UserError = require('../../user/errors/UserErorr');
 
 function permissionCheck(req, res, next) {
   const { userId, role } = JSON.parse(req.user);

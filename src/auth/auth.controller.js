@@ -16,7 +16,8 @@ const {
   port,
 } = require('../app/configs');
 const matchId = require('../app/utils/matchId');
-const { AuthValidationError, AuthError } = require('./errors');
+const { AuthError } = require('./errors');
+const { ValidationError } = require('../app/errors');
 const UserError = require('../user/errors/UserErorr');
 const { saveToken, findToken, deleteToken } = require('./auth.model');
 const { UserModel } = require('../app/providers/mongoProvider');
@@ -25,7 +26,7 @@ async function httpSignUp(req, res, next) {
   const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
   try {
     if (!validationErrors.isEmpty()) {
-      throw new AuthValidationError(validationErrors.errors);
+      throw new ValidationError('Auth', validationErrors.errors);
     }
     const { password, email } = req.body;
     const isExist = await UserModel.findByUserEmail(email);
