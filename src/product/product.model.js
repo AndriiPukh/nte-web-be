@@ -16,13 +16,8 @@ async function findProductById(_id) {
   return ProductDB.findById(_id, { __v: 0 });
 }
 
-async function deleteProductById(_id) {
-  await ProductDB.findByIdAndDelete(_id);
-}
-
 module.exports = {
   saveProduct,
   findAllProducts,
   findProductById,
-  deleteProductById,
 };

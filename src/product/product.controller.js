@@ -116,6 +116,28 @@ async function httpAddProductComment(req, res, next) {
   }
 }
 
+async function httpRemoveProductComment(req, res, next) {
+  try {
+    const { id, commentId } = req.params;
+    const product = await isExist(id);
+    if (!checkPermission(product.creator, JSON.parse(req.user))) {
+      throw new ProductError('FORBIDDEN');
+    }
+    const { comments } = product;
+    const commentIndex = comments.findIndex(
+      (com) => com._id.toString() === commentId
+    );
+    if (commentIndex === -1) {
+      throw new ProductError('COMMENT_NOT_FOUND');
+    }
+    comments.splice(commentIndex, 1);
+    await product.save();
+    res.status(statusCode.OK).json(product);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   httpGetAllProducts,
   httpGetProductById,
@@ -123,4 +145,5 @@ module.exports = {
   httpUpdateProduct,
   httMarkProductAsDelete,
   httpAddProductComment,
+  httpRemoveProductComment,
 };

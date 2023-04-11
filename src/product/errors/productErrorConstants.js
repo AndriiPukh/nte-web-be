@@ -14,4 +14,9 @@ module.exports = {
     httpCode: 400,
     description: 'Incorrect product ID format!',
   },
+  COMMENT_NOT_FOUND: {
+    name: 'Product',
+    httpCode: 404,
+    description: 'Comment not found!',
+  },
 };

@@ -58,10 +58,6 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
       },
-      id: {
-        type: 'UUID',
-        default: () => randomUUID(),
-      },
     },
   ],
   deleted: {
