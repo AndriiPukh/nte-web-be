@@ -15,14 +15,14 @@ const userValidation = [
     .isString()
     .isLength({ min: 3, max: 12 })
     .withMessage(WRONG_LENGTH)
-    .matches(/^[А-Яа-яA-Za-z]+$/)
+    .matches(/^[А-Яа-яіёЁA-Za-z]+$/)
     .withMessage(WRONG_NAME_FORMAT),
   check('lastName')
     .exists({ checkNull: false })
     .isString()
     .isLength({ min: 3, max: 12 })
     .withMessage(WRONG_LENGTH)
-    .matches(/^[А-Яа-яA-Za-z]+$/)
+    .matches(/^[А-Яа-яіёЁA-Za-z]+$/)
     .withMessage(WRONG_LAST_NAME_FORMAT),
 ];
 module.exports = userValidation;

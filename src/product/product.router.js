@@ -1,30 +1,39 @@
 const { Router } = require('express');
-const { validation } = require('./utils');
+const {
+  validation: {
+    productCreateValidation,
+    productUpdateValidation,
+    productComments,
+  },
+} = require('./utils');
 const { multer } = require('../app/services/storage');
 const {
   httpGetAllProducts,
   httpGetProductById,
   httpCreateProduct,
+  httpUpdateProduct,
   httMarkProductAsDelete,
+  httpAddProductComment,
 } = require('./product.controller');
 const { authenticate } = require('../auth/services/passport');
-const permissionCheck = require('../app/middlewares/permissionCheck');
 
 const productRouter = Router();
-productRouter.get('/', authenticate, httpGetAllProducts);
-productRouter.get('/:id', authenticate, httpGetProductById);
+productRouter.use(authenticate);
+productRouter.get('/', httpGetAllProducts);
+productRouter.get('/:id', httpGetProductById);
 productRouter.post(
   '/',
-  authenticate,
   multer.single('image'),
-  validation,
+  productCreateValidation,
   httpCreateProduct
 );
-productRouter.get(
-  '/mark-delete/:id',
-  authenticate,
-  permissionCheck,
-  httMarkProductAsDelete
+productRouter.put(
+  '/',
+  multer.single('image'),
+  productUpdateValidation,
+  httpUpdateProduct
 );
+productRouter.get('/mark-delete/:id', httMarkProductAsDelete);
+productRouter.post('/:id/comments', productComments, httpAddProductComment);
 
 module.exports = productRouter;
