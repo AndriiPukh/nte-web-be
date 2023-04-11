@@ -14,6 +14,7 @@ const {
   httpUpdateProduct,
   httMarkProductAsDelete,
   httpAddProductComment,
+  httpRemoveProductComment,
 } = require('./product.controller');
 const { authenticate } = require('../auth/services/passport');
 
@@ -35,5 +36,6 @@ productRouter.put(
 );
 productRouter.get('/mark-delete/:id', httMarkProductAsDelete);
 productRouter.post('/:id/comments', productComments, httpAddProductComment);
+productRouter.delete('/:id/:commentId', httpRemoveProductComment);
 
 module.exports = productRouter;

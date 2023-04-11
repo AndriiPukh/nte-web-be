@@ -2,7 +2,7 @@ const { findProductById } = require('../product.model');
 const { matchId } = require('../../app/utils');
 const { ProductError } = require('../errors');
 
-async function isExist(id) {
+async function isExist(id, commentId = null) {
   if (!matchId(id)) {
     throw new ProductError('INVALID_ID');
   }
