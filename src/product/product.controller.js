@@ -1,17 +1,29 @@
 const { validationResult } = require('express-validator');
-const { findAllProducts, saveProduct } = require('./product.model');
+const {
+  findAllActiveProducts,
+  saveProduct,
+  findAllProducts,
+  updateManyProducts,
+} = require('./product.model');
 const { ProductError } = require('./errors');
-const { getPagination, matchId } = require('../app/utils');
 const { normalizeFields, checkPermission } = require('./utils');
 const { statusCode } = require('../app/configs');
 const { ValidationError } = require('../app/errors');
 const { uploadFile } = require('../app/utils/uploadFileToStorage');
-const { isExist } = require('./helpers/productHelpers');
+const {
+  isExist,
+  createFilterFromQueryParams,
+  checkMultipleIds,
+} = require('./helpers/productHelpers');
 
 async function httpGetAllProducts(req, res, next) {
   try {
-    const { skip, limit } = getPagination(req.query);
-    const products = await findAllProducts(skip, limit);
+    const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!validationErrors.isEmpty()) {
+      throw new ValidationError('Products', validationErrors.errors);
+    }
+    const { skip, limit, ...filter } = createFilterFromQueryParams(req.query);
+    const products = await findAllActiveProducts(skip, limit, filter);
     res.status(statusCode.OK).json(products);
   } catch (err) {
     next(err);
@@ -78,7 +90,6 @@ async function httpUpdateProduct(req, res, next) {
   }
 }
 
-// TODO - check save for document
 async function httMarkProductAsDelete(req, res, next) {
   try {
     const { id } = req.params;
@@ -105,7 +116,6 @@ async function httpAddProductComment(req, res, next) {
       body: { text },
       user,
     } = req;
-    console.log(id, text);
     const { userId } = JSON.parse(user);
     const product = await isExist(id);
     product.comments.push({ text, author: userId });
@@ -138,6 +148,36 @@ async function httpRemoveProductComment(req, res, next) {
   }
 }
 
+async function httpGetAllProductsByAdmin(req, res, next) {
+  try {
+    const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!validationErrors.isEmpty()) {
+      throw new ValidationError('Products', validationErrors.errors);
+    }
+    const { skip, limit, ...filter } = createFilterFromQueryParams(req.query);
+
+    const products = await findAllProducts(skip, limit, filter);
+    res.status(statusCode.OK).json(products);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function httpRemoveRestoreManyProducts(req, res, next) {
+  try {
+    const validationErrors = validationResult(req).formatWith(({ msg }) => msg);
+    if (!validationErrors.isEmpty()) {
+      throw new ValidationError('Products', validationErrors.errors);
+    }
+    const { ids, deleted } = req.body;
+    checkMultipleIds(ids);
+    await updateManyProducts(ids, { deleted });
+    res.status(statusCode.OK).send('success');
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   httpGetAllProducts,
   httpGetProductById,
@@ -146,4 +186,6 @@ module.exports = {
   httMarkProductAsDelete,
   httpAddProductComment,
   httpRemoveProductComment,
+  httpGetAllProductsByAdmin,
+  httpRemoveRestoreManyProducts,
 };

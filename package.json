@@ -55,6 +55,7 @@
     "passport-jwt": "^4.0.1",
     "rate-limiter-flexible": "^2.4.1",
     "redis": "^4.6.5",
+    "regex-escape": "^3.4.10",
     "supertest": "^6.3.3",
     "winston": "^3.8.2"
   },

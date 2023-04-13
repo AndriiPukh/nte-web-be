@@ -2,6 +2,8 @@ const {
   productCreateValidation,
   productUpdateValidation,
   productComments,
+  productFilterParams,
+  productMultipleUpdates,
 } = require('./productValidation');
 const normalizeFields = require('./normalizeFields');
 const checkPermission = require('./checkPermission');
@@ -11,6 +13,8 @@ module.exports = {
     productCreateValidation,
     productUpdateValidation,
     productComments,
+    productFilterParams,
+    productMultipleUpdates,
   },
   normalizeFields,
   checkPermission,

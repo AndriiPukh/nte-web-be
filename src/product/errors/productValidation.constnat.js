@@ -12,4 +12,5 @@ module.exports = {
   WRONG_COMMENT_LENGTH:
     'Length must be more than 3 and less than 300 characters',
   WRONG_COMMENT_FORMAT: 'Wrong comment text',
+  WRONG_ID: 'Wrong format for User ID',
 };
