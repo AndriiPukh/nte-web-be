@@ -14,7 +14,6 @@ function normalizeCategories(category, subCategory) {
 
 function normalizeFields(fields) {
   const normalizedFields = fields;
-  console.log(fields);
   if (normalizedFields.price) {
     normalizedFields.price = +fields.price;
   }
@@ -28,7 +27,6 @@ function normalizeFields(fields) {
       fields.subCategory
     );
   }
-  console.log(normalizedFields);
   return { ...normalizedFields, ...normalizedCategory };
 }
 

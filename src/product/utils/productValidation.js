@@ -1,4 +1,4 @@
-const { check } = require('express-validator');
+const { check, query } = require('express-validator');
 const {
   validationMessages: {
     WRONG_LENGTH,
@@ -12,6 +12,7 @@ const {
     WRONG_AMOUNT,
     WRONG_COMMENT_LENGTH,
     WRONG_COMMENT_FORMAT,
+    WRONG_ID,
   },
 } = require('../errors');
 const { SUBCATEGORY, CATEGORY, UNITS } = require('../product.constant');
@@ -92,8 +93,37 @@ const productComments = [
     .withMessage(WRONG_COMMENT_FORMAT),
 ];
 
+const productFilterParams = [
+  query('title')
+    .optional()
+    .isLength({ min: 3, max: 100 })
+    .withMessage(WRONG_LENGTH)
+    .matches(/[а-яіїёЁА-Яa-zA-Z!0-9?%\-"',\s<>]+/)
+    .withMessage(WRONG_FORMAT),
+  query('trademark')
+    .optional()
+    .isString()
+    .isLength({ min: 2, max: 100 })
+    .withMessage(WRONG_LENGTH_TRADEMARK)
+    .matches(/[а-яіїёЁА-Яa-zA-Z!0-9?%\-"',\s<>]+/)
+    .withMessage(WRONG_FORMAT),
+  query('category').optional().isIn(CATEGORY).withMessage(WRONG_CATEGORY),
+  query('subCategory')
+    .optional()
+    .isIn(SUBCATEGORY)
+    .withMessage(WRONG_SUBCATEGORY),
+  query('creator').optional().isString().withMessage(WRONG_ID),
+];
+
+const productMultipleUpdates = [
+  check('ids').exists().isArray({ min: 1 }).withMessage(WRONG_FORMAT),
+  check('deleted').isBoolean().withMessage(WRONG_FORMAT),
+];
+
 module.exports = {
   productCreateValidation,
   productUpdateValidation,
   productComments,
+  productFilterParams,
+  productMultipleUpdates,
 };
