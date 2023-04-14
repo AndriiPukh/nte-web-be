@@ -1,5 +1,5 @@
 function checkPermission(id, { userId, role }) {
-  return id === userId || role === 'admin';
+  return id.toString() === userId || role === 'admin';
 }
 
 module.exports = checkPermission;

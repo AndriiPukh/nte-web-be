@@ -25,6 +25,13 @@ const { authenticate } = require('../auth/services/passport');
 
 const productRouter = Router();
 productRouter.use(authenticate);
+productRouter.post(
+  '/',
+  multer.single('image'),
+  productCreateValidation,
+  httpCreateProduct
+);
+productRouter.get('/', productFilterParams, httpGetAllProducts);
 productRouter.get(
   '/admin',
   isAdmin,
@@ -33,16 +40,10 @@ productRouter.get(
   httpGetAllProductsByAdmin
 );
 productRouter.post('/admin', isAdmin, httpRemoveRestoreManyProducts);
-productRouter.get('/', productFilterParams, httpGetAllProducts);
 productRouter.get('/:id', httpGetProductById);
-productRouter.post(
-  '/',
-  multer.single('image'),
-  productCreateValidation,
-  httpCreateProduct
-);
+
 productRouter.put(
-  '/',
+  '/:id',
   multer.single('image'),
   productUpdateValidation,
   httpUpdateProduct

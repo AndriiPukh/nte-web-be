@@ -1,4 +1,4 @@
-const { CATEGORY_DICTIONARY } = require('../product.constant');
+const { CATEGORY_DICTIONARY } = require('../constants/product.constant');
 
 function getKeyByValue(object, value) {
   return Object.keys(object).find((key) => object[key].includes(value));

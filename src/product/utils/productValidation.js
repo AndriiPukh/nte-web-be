@@ -15,7 +15,11 @@ const {
     WRONG_ID,
   },
 } = require('../errors');
-const { SUBCATEGORY, CATEGORY, UNITS } = require('../product.constant');
+const {
+  SUBCATEGORY,
+  CATEGORY,
+  UNITS,
+} = require('../constants/product.constant');
 
 const productCreateValidation = [
   check('title')

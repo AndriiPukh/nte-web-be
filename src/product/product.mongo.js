@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 const { randomUUID } = require('crypto');
 const { Schema } = require('mongoose');
-const { UNITS, SUBCATEGORY, CATEGORY } = require('./product.constant');
+const {
+  UNITS,
+  SUBCATEGORY,
+  CATEGORY,
+} = require('./constants/product.constant');
 
 const productSchema = new mongoose.Schema({
   title: {

@@ -22,7 +22,7 @@ async function findAllActiveProducts(skip, limit, filter = {}) {
 }
 
 async function findProductById(_id) {
-  return ProductDB.findOne({ _id, deleted: false }, { __v: 0 })
+  return ProductDB.findOne({ _id, deleted: false }, { __v: 0, deleted: 0 })
     .populate({
       path: 'creator',
       select:
