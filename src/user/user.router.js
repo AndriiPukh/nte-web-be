@@ -64,7 +64,7 @@ const userRouter = Router();
  *     "updatedAt": "2023-04-04T07:44:58.805Z",
  *     "verified": true
  * }
- * @example response - 400 - example error response
+ * @example response - 400 - Example error response
  * {
  *   "errors": [
  *     {
