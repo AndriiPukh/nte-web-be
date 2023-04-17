@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const { log } = require('winston');
 const {
   findAllActiveProducts,
   saveProduct,
@@ -68,9 +69,12 @@ async function httpUpdateProduct(req, res, next) {
     if (!validationErrors.isEmpty()) {
       throw new ValidationError('Products', validationErrors.errors);
     }
-    const { _id, ...updates } = req.body;
-    const product = await isExist(_id);
-    if (!checkPermission(product.creator, JSON.parse(req.user))) {
+    const {
+      params: { id },
+      body: updates,
+    } = req;
+    const product = await isExist(id);
+    if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
     let normalizedFields = {};
@@ -84,7 +88,7 @@ async function httpUpdateProduct(req, res, next) {
     );
     product.updatedAt = new Date().toISOString();
     await product.save();
-    res.status(statusCode.OK).json({ id: product._id });
+    res.status(statusCode.OK).json(product);
   } catch (err) {
     next(err);
   }
@@ -94,7 +98,7 @@ async function httMarkProductAsDelete(req, res, next) {
   try {
     const { id } = req.params;
     const product = await isExist(id);
-    if (!checkPermission(product.creator, JSON.parse(req.user))) {
+    if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
     product.deleted = true;
@@ -130,7 +134,7 @@ async function httpRemoveProductComment(req, res, next) {
   try {
     const { id, commentId } = req.params;
     const product = await isExist(id);
-    if (!checkPermission(product.creator, JSON.parse(req.user))) {
+    if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
     const { comments } = product;
