@@ -134,7 +134,7 @@ async function httpRemoveProductComment(req, res, next) {
   try {
     const { id, commentId } = req.params;
     const product = await isExist(id);
-    if (!checkPermission(product.creator, JSON.parse(req.user))) {
+    if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
     const { comments } = product;

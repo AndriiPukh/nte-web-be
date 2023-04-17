@@ -48,4 +48,20 @@ module.exports = {
   commentsText: {
     text: 'Test message',
   },
+  commentsWrongText: {
+    text: ':)',
+  },
+  commentValidationError: {
+    errors: [
+      {
+        text: "Value ':)' - Length must be more than 3 and less than 300 characters",
+      },
+      {
+        text: "Value ':)' - Wrong comment text",
+      },
+    ],
+  },
+  commentsError: {
+    notFound: 'Comment not found!',
+  },
 };
