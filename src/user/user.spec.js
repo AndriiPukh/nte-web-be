@@ -29,7 +29,7 @@ describe('Test Users API', () => {
       const response = await request(app)
         .get('/api/users/')
         .set({ Authorization: `Bearer ${token.accessToken}` })
-        .expect('Content-Type', /json/)
+        .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(statusCode.OK);
       expect(response.body.length).toBeGreaterThan(0);
     });
@@ -41,7 +41,7 @@ describe('Test Users API', () => {
       const response = await request(app)
         .get(`/api/users/${user._id}`)
         .set({ Authorization: `Bearer ${token.accessToken}` })
-        .expect('Content-Type', /json/)
+        .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(statusCode.OK);
       expect(response.body.email).toEqual(user.email);
     });
@@ -50,7 +50,7 @@ describe('Test Users API', () => {
       await request(app)
         .get(`/api/users/${user._id}123`)
         .set({ Authorization: `Bearer ${token.accessToken}` })
-        .expect('Content-Type', /json/)
+        .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(statusCode.NOT_FOUND);
     });
   });
@@ -68,7 +68,7 @@ describe('Test Users API', () => {
         .post('/api/users/update')
         .send(validUserObject)
         .set({ Authorization: `Bearer ${token.accessToken}` })
-        .expect('Content-Type', /json/)
+        .expect('Content-Type', 'application/json; charset=utf-8')
         .expect(statusCode.OK);
       expect(response.body.additionalInformation.firstName).toEqual(
         validUserObject.firstName

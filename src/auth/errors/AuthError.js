@@ -1,5 +1,5 @@
 const { APIError } = require('../../app/errors');
-const authErrors = require('./authErrors.constants');
+const authErrors = require('../constants/authErrors.constants');
 
 class AuthError extends APIError {
   constructor(errorName) {

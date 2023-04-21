@@ -11,6 +11,7 @@ const { UserError } = require('./errors');
 const { ValidationError } = require('../app/errors');
 const { statusCode } = require('../app/configs');
 const { getPagination } = require('../app/utils/query');
+const { matchId } = require('../app/utils');
 
 async function httpPostUserUpdate(req, res, next) {
   try {
@@ -38,7 +39,7 @@ async function httpPostUserUpdate(req, res, next) {
 async function httpGetUser(req, res, next) {
   try {
     const { id } = req.params;
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!matchId(id)) {
       throw new UserError('NOT_FOUND');
     }
     const user = await findByUserId(id);

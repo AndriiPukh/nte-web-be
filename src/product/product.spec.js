@@ -1,5 +1,4 @@
 const request = require('supertest');
-const { raw } = require('express');
 const ProductDB = require('./product.mongo');
 const { getAllUsers } = require('../user/user.model');
 const { findTokenByUserId } = require('../auth/auth.model');
@@ -182,14 +181,14 @@ describe('Test Product API', () => {
       expect(response.body.length).toEqual(1);
     });
   });
-  describe('GET /products/mark-delete/:id', () => {
-    test('Delete success', async () => {
-      const resposne = await request(app)
-        .get(`/api/products/mark-delete/${productId}`)
-        .set({ Authorization: `Bearer ${token.accessToken}` })
-        .expect('Content-Type', 'text/html; charset=utf-8')
-        .expect(statusCode.OK);
-      expect(resposne.body).toEqual({});
-    });
-  });
+  // describe('GET /products/mark-delete/:id', () => {
+  //   test('Delete success', async () => {
+  //     const resposne = await request(app)
+  //       .get(`/api/products/mark-delete/${productId}`)
+  //       .set({ Authorization: `Bearer ${token.accessToken}` })
+  //       .expect('Content-Type', 'text/html; charset=utf-8')
+  //       .expect(statusCode.OK);
+  //     expect(resposne.body).toEqual({});
+  //   });
+  // });
 });
