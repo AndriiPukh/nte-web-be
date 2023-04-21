@@ -1,6 +1,6 @@
-const AuthError = require('./authError');
-const authMessages = require('./authErrors.constants');
-const authValidationMessages = require('./validationError.constant');
+const AuthError = require('./AuthError');
+const authMessages = require('../constants/authErrors.constants');
+const authValidationMessages = require('../constants/validationError.constant');
 const AppErrors = require('../../app/errors');
 
 module.exports = {

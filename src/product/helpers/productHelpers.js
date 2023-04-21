@@ -3,7 +3,7 @@ const { findProductById } = require('../product.model');
 const { matchId, getPagination } = require('../../app/utils');
 const { ProductError } = require('../errors');
 
-async function isExist(id) {
+async function isProductExist(id) {
   if (!matchId(id)) {
     throw new ProductError('INVALID_ID');
   }
@@ -55,7 +55,7 @@ function checkMultipleIds(ids) {
 }
 
 module.exports = {
-  isExist,
+  isProductExist,
   createFilterFromQueryParams,
   checkMultipleIds,
 };

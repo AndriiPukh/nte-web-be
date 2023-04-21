@@ -1,5 +1,4 @@
 const { validationResult } = require('express-validator');
-const { log } = require('winston');
 const {
   findAllActiveProducts,
   saveProduct,
@@ -12,7 +11,7 @@ const { statusCode } = require('../app/configs');
 const { ValidationError } = require('../app/errors');
 const { uploadFile } = require('../app/utils/uploadFileToStorage');
 const {
-  isExist,
+  isProductExist,
   createFilterFromQueryParams,
   checkMultipleIds,
 } = require('./helpers/productHelpers');
@@ -34,7 +33,7 @@ async function httpGetAllProducts(req, res, next) {
 async function httpGetProductById(req, res, next) {
   try {
     const { id } = req.params;
-    const product = await isExist(id);
+    const product = await isProductExist(id);
     res.status(statusCode.OK).json(product);
   } catch (err) {
     next(err);
@@ -73,7 +72,7 @@ async function httpUpdateProduct(req, res, next) {
       params: { id },
       body: updates,
     } = req;
-    const product = await isExist(id);
+    const product = await isProductExist(id);
     if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
@@ -97,7 +96,7 @@ async function httpUpdateProduct(req, res, next) {
 async function httMarkProductAsDelete(req, res, next) {
   try {
     const { id } = req.params;
-    const product = await isExist(id);
+    const product = await isProductExist(id);
     if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }
@@ -121,7 +120,7 @@ async function httpAddProductComment(req, res, next) {
       user,
     } = req;
     const { userId } = JSON.parse(user);
-    const product = await isExist(id);
+    const product = await isProductExist(id);
     product.comments.push({ text, author: userId });
     await product.save();
     res.status(statusCode.OK).json(product);
@@ -133,7 +132,7 @@ async function httpAddProductComment(req, res, next) {
 async function httpRemoveProductComment(req, res, next) {
   try {
     const { id, commentId } = req.params;
-    const product = await isExist(id);
+    const product = await isProductExist(id);
     if (!checkPermission(product.creator._id, JSON.parse(req.user))) {
       throw new ProductError('FORBIDDEN');
     }

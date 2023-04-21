@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const { randomUUID } = require('crypto');
-const { Schema } = require('mongoose');
+
+const { Schema } = mongoose;
 const {
   UNITS,
   SUBCATEGORY,

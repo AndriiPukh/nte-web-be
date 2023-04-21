@@ -5,7 +5,7 @@ const {
   EMAIL_IS_IN_WRONG_FORMAT,
   PASSWORD_IS_EMPTY,
   PASSWORD_LENGTH_MUST_BE_MORE_THAN_8,
-} = require('../errors/validationError.constant');
+} = require('../constants/validationError.constant');
 
 const registerValidation = [
   check('email')
